@@ -234,7 +234,6 @@ bool FlashData::IsValid() const
 		&& touchVolume <= Buzzer::MaxVolume
 		&& brightness >= Buzzer::MinBrightness
 		&& brightness <= Buzzer::MaxBrightness
-		&& language < UI::GetNumLanguages()
 		&& colourScheme < NumColourSchemes
 		&& displayDimmerType < DisplayDimmerType::NumTypes;
 }
@@ -377,12 +376,12 @@ PrinterStatus GetStatus()
 // Initialise the LCD and user interface. The non-volatile data must be set up before calling this.
 void InitLcd()
 {
-	lcd.InitLCD(nvData.lcdOrientation, IS_24BIT, IS_ER);				// set up the LCD
+	lcd.InitLCD(nvData.lcdOrientation, IS_24BIT, IS_ER);					// set up the LCD
 	colours = &colourSchemes[nvData.colourScheme];
-	UI::CreateFields(nvData.language, *colours, nvData.infoTimeout);	// create all the fields
-	lcd.fillScr(black);													// make sure the memory is clear
-	Delay(100);															// give the LCD time to update
-	RestoreBrightness();												// turn the display on
+	UI::CreateMainWindow(nvData.language, *colours, nvData.infoTimeout);	// create all the fields
+	lcd.fillScr(black);														// make sure the memory is clear
+	Delay(100);																// give the LCD time to update
+	RestoreBrightness();													// turn the display on
 }
 
 // Ignore touches for a long time
@@ -442,7 +441,7 @@ void DoTouchCalib(PixelNumber x, PixelNumber y, PixelNumber altX, PixelNumber al
 void CalibrateTouch()
 {
 	DisplayField *oldRoot = mgr.GetRoot();
-	mgr.SetRoot(touchCalibInstruction);
+	//mgr.SetRoot(touchCalibInstruction);
 	mgr.Refresh(true);
 
 	touch.init(DisplayX, DisplayY, DefaultTouchOrientAdjust);				// initialize the driver and clear any existing calibration
@@ -601,7 +600,7 @@ void SetStatus(char c)
 		{
 			RestoreBrightness();
 		}
-		UI::ChangeStatus(status, newStatus);
+		//UI::ChangeStatus(status, newStatus);
 		
 		if (status == PrinterStatus::configuring || (status == PrinterStatus::connecting && newStatus != PrinterStatus::configuring))
 		{
@@ -609,16 +608,16 @@ void SetStatus(char c)
 		}
 	
 		status = newStatus;
-		UI::UpdatePrintingFields();
+		//UI::UpdatePrintingFields();
 	}
 }
 
 // Set the status back to "Connecting"
 void Reconnect()
 {
-	UI::ChangeStatus(status, PrinterStatus::connecting);
+	//UI::ChangeStatus(status, PrinterStatus::connecting);
 	status = PrinterStatus::connecting;
-	UI::UpdatePrintingFields();
+	//UI::UpdatePrintingFields();
 }
 
 // Try to get an integer value from a string. If it is actually a floating point value, round it.
@@ -736,11 +735,11 @@ void EndReceivedMessage()
 	FileManager::EndReceivedMessage();
 	if ((currentAlert.flags & Alert::GotMode) != 0 && currentAlert.mode < 0)
 	{
-		UI::ClearAlert();
+		//UI::ClearAlert();
 	}
 	else if (currentAlert.flags == Alert::GotAll && currentAlert.seq != lastAlertSeq)
 	{
-		UI::ProcessAlert(currentAlert);
+		//UI::ProcessAlert(currentAlert);
 		lastAlertSeq = currentAlert.seq;
 	}
 	ShowLine;
@@ -759,7 +758,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				UI::UpdateActiveTemperature(indices[0], ival);
+				//UI::UpdateActiveTemperature(indices[0], ival);
 			}
 		}
 		break;
@@ -770,7 +769,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				UI::UpdateStandbyTemperature(indices[0], ival);
+				//UI::UpdateStandbyTemperature(indices[0], ival);
 			}
 		}
 		break;
@@ -782,7 +781,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			if (GetFloat(data, fval))
 			{
 				ShowLine;
-				UI::UpdateCurrentTemperature(indices[0], fval);
+				//UI::UpdateCurrentTemperature(indices[0], fval);
 			}
 		}
 		break;
@@ -793,7 +792,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				UI::UpdateHeaterStatus(indices[0], ival);
+				//UI::UpdateHeaterStatus(indices[0], ival);
 			}
 		}
 		break;
@@ -804,7 +803,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			float fval;
 			if (GetFloat(data, fval))
 			{
-				UI::UpdateAxisPosition(indices[0], fval);
+				//UI::UpdateAxisPosition(indices[0], fval);
 			}
 		}
 		break;
@@ -815,7 +814,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				UI::UpdateExtrusionFactor(indices[0], ival);
+				//UI::UpdateExtrusionFactor(indices[0], ival);
 			}
 		}
 		break;
@@ -841,7 +840,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			if (GetFloat(data, f))
 			{
 				totalFilament += f;
-				UI::UpdateFileFilament((int)totalFilament);
+				//UI::UpdateFileFilament((int)totalFilament);
 			}
 		}
 		break;
@@ -856,7 +855,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 				if (isHomed != axisHomed[indices[0]])
 				{
 					axisHomed[indices[0]] = isHomed;
-					UI::UpdateHomedStatus(indices[0], isHomed);
+					//UI::UpdateHomedStatus(indices[0], isHomed);
 					bool allHomed = true;
 					for (size_t i = 0; i < numAxes; ++i)
 					{
@@ -869,7 +868,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 					if (allHomed != allAxesHomed)
 					{
 						allAxesHomed = allHomed;
-						UI::UpdateHomedStatus(-1, allHomed);
+						//UI::UpdateHomedStatus(-1, allHomed);
 					}
 				}
 			}
@@ -883,7 +882,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			bool b = GetInteger(data, i);
 			if (b && i >= 0 && i < 10 * 24 * 60 * 60 && PrintInProgress())
 			{
-				UI::UpdateTimesLeft(indices[0], i);
+				//UI::UpdateTimesLeft(indices[0], i);
 			}
 		}
 		break;
@@ -896,7 +895,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			bool b = GetFloat(data, f);
 			if (b && f >= 0.0 && f <= 100.0)
 			{
-				UI::UpdateFanPercent((int)(f + 0.5));
+				//UI::UpdateFanPercent((int)(f + 0.5));
 			}
 		}
 		break;
@@ -906,24 +905,24 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				UI::UpdateSpeedPercent(ival);
+				//UI::UpdateSpeedPercent(ival);
 			}
 		}
 		break;
 
 	case rcvProbe:
-		UI::UpdateZProbe(data);
+		//UI::UpdateZProbe(data);
 		break;
 
 	case rcvMyName:
 		if (status != PrinterStatus::configuring && status != PrinterStatus::connecting)
 		{
-			UI::UpdateMachineName(data);
+			//UI::UpdateMachineName(data);
 		}
 		break;
 
 	case rcvFilename:
-		UI::PrintingFilenameChanged(data);
+		//UI::PrintingFilenameChanged(data);
 		break;
 
 	case rcvSize:
@@ -931,7 +930,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t sz;
 			if (GetInteger(data, sz))
 			{
-				UI::UpdateFileSize(sz);
+				//UI::UpdateFileSize(sz);
 			}
 		}
 		break;
@@ -941,13 +940,13 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			float f;
 			if (GetFloat(data, f))
 			{
-				UI::UpdateFileObjectHeight(f);
+				//UI::UpdateFileObjectHeight(f);
 			}
 		}
 		break;
 
 	case rcvLastModified:
-		UI::UpdateFileLastModifiedText(data);
+		//UI::UpdateFileLastModifiedText(data);
 		break;
 
 	case rcvPrintTime:
@@ -956,7 +955,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t sz;
 			if (GetInteger(data, sz) && sz > 0)
 			{
-				UI::UpdatePrintTimeText((uint32_t)sz, rde == rcvSimulatedTime);
+				//UI::UpdatePrintTimeText((uint32_t)sz, rde == rcvSimulatedTime);
 			}
 		}
 		break;
@@ -966,13 +965,13 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			float f;
 			if (GetFloat(data, f))
 			{
-				UI::UpdateFileLayerHeight(f);
+				//UI::UpdateFileLayerHeight(f);
 			}
 		}
 		break;
 
 	case rcvGeneratedBy:
-		UI::UpdateFileGeneratedByText(data);
+		//UI::UpdateFileGeneratedByText(data);
 		break;
 
 	case rcvFraction:
@@ -982,7 +981,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			{
 				if (f >= 0.0 && f <= 1.0)
 				{
-					UI::SetPrintProgressPercent((unsigned int)(100.0 * f) + 0.5);
+					//UI::SetPrintProgressPercent((unsigned int)(100.0 * f) + 0.5);
 				}
 			}
 		}
@@ -1004,7 +1003,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 		if (status != PrinterStatus::configuring && status != PrinterStatus::connecting)
 		{
 			isDelta = (strcasecmp(data, "delta") == 0);
-			UI::UpdateGeometry(numAxes, isDelta);
+			//UI::UpdateGeometry(numAxes, isDelta);
 		}
 		break;
 
@@ -1013,7 +1012,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			uint32_t n = MIN_AXES;
 			GetUnsignedInteger(data, n);
 			numAxes = constrain<unsigned int>(n, MIN_AXES, MaxAxes);
-			UI::UpdateGeometry(numAxes, isDelta);
+			//UI::UpdateGeometry(numAxes, isDelta);
 		}
 		break;
 
@@ -1032,11 +1031,11 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 	case rcvMessage:
 		if (data[0] == 0)
 		{
-			UI::ClearAlert();
+			//UI::ClearAlert();
 		}
 		else
 		{
-			UI::ProcessSimpleAlert(data);
+			//UI::ProcessSimpleAlert(data);
 		}
 		break;
 
@@ -1103,7 +1102,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			uint32_t i;
 			if (GetUnsignedInteger(data, i))
 			{
-				UI::SetNumTools(i);
+				//UI::SetNumTools(i);
 			}
 		}
 		break;
@@ -1117,7 +1116,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 				if (newFeatures != firmwareFeatures)
 				{
 					firmwareFeatures = newFeatures;
-					UI::FirmwareFeaturesChanged(firmwareFeatures);
+					//UI::FirmwareFeaturesChanged(firmwareFeatures);
 					FileManager::FirmwareFeaturesChanged();
 				}
 				break;
@@ -1130,7 +1129,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			float f;
 			if (GetFloat(data, f))
 			{
-				UI::SetBabystepOffset(f);
+				//UI::SetBabystepOffset(f);
 			}
 		}
 		break;
@@ -1150,14 +1149,14 @@ void ProcessArrayEnd(const char id[], const size_t indices[])
 	}
 	if (strcmp(id, "heaters^") == 0)
 	{
-		UI::SetNumHeaters(indices[0]);					// tell the user interface how many heaters there are
+		//UI::SetNumHeaters(indices[0]);					// tell the user interface how many heaters there are
 	}
 }
 
 // Update those fields that display debug information
 void UpdateDebugInfo()
 {
-	freeMem->SetValue(GetFreeMemory());
+	//freeMem->SetValue(GetFreeMemory());
 }
 
 #if 0
@@ -1266,18 +1265,18 @@ int main(void)
 #endif
 
 	mgr.Refresh(true);								// draw the screen for the first time
-	UI::UpdatePrintingFields();
+	//UI::UpdatePrintingFields();
 
 	lastPollTime = SystemTick::GetTickCount() - printerPollInterval;	// allow a poll immediately
 	
 	// Hide the Head 2+ parameters until we know we have a second head
-	UI::SetNumHeaters(2);
-	UI::SetNumTools(1);
+	//UI::SetNumHeaters(2);
+	//UI::SetNumTools(1);
 	
-	debugField->Show(DEBUG != 0);					// show the debug field only if debugging is enabled
+	//debugField->Show(DEBUG != 0);					// show the debug field only if debugging is enabled
 
 	// Display the Control tab. This also refreshes the display.
-	UI::ShowDefaultPage();
+	//UI::ShowDefaultPage();
 	lastResponseTime = SystemTick::GetTickCount();	// pretend we just received a response
 	
 	machineConfigTimer.SetPending();				// we need to fetch the machine name and configuration
@@ -1293,13 +1292,13 @@ int main(void)
 		ShowLine;
 		
 		// 2. if displaying the message log, update the times
-		UI::Spin();
+		//UI::Spin();
 		ShowLine;
 		
 		// 3. Check for a touch on the touch panel.
 		if (SystemTick::GetTickCount() - lastTouchTime >= ignoreTouchTime)
 		{
-			UI::OnButtonPressTimeout();
+			//UI::OnButtonPressTimeout();
 
 			uint16_t x, y;
 			if (touch.read(x, y))
@@ -1324,19 +1323,19 @@ int main(void)
 						{
 							TouchBeep();		// give audible feedback of the touch, unless adjusting the volume
 						}
-						UI::ProcessTouch(bp);
+						//UI::ProcessTouch(bp);
 					}
 					else
 					{
 						bp = mgr.FindEventOutsidePopup(x, y);
 						if (bp.IsValid())
 						{
-							UI::ProcessTouchOutsidePopup(bp);
+							//UI::ProcessTouchOutsidePopup(bp);
 						}
 					}
 				}
 			}
-			else if (!isDimmed && SystemTick::GetTickCount() - lastActionTime >= DimDisplayTimeout && UI::CanDimDisplay())
+			else if (!isDimmed && SystemTick::GetTickCount() - lastActionTime >= DimDisplayTimeout /*&& UI::CanDimDisplay()*/)
 			{
 				DimBrightness();				// it might not actually dim the display, depending on various flags
  			}
@@ -1367,8 +1366,8 @@ int main(void)
 		// When the printer is executing a homing move or other file macro, it may stop responding to polling requests.
 		// Under these conditions, we slow down the rate of polling to avoid building up a large queue of them.
 		const uint32_t now = SystemTick::GetTickCount();
-		if (   UI::DoPolling()										// don't poll while we are in the Setup page
-		    && now - lastPollTime >= printerPollInterval			// if we haven't polled the printer too recently...
+		if (   /*UI::DoPolling()										// don't poll while we are in the Setup page
+		    && */now - lastPollTime >= printerPollInterval			// if we haven't polled the printer too recently...
 			&& now - lastResponseTime >= printerResponseInterval	// and we haven't had a response too recently
 		   )
 		{
@@ -1402,7 +1401,7 @@ int main(void)
 
 void PrintDebugText(const char *x)
 {
-	fwVersionField->SetValue(x);
+	//fwVersionField->SetValue(x);
 }
 
 // Pure virtual function call handler, to avoid pulling in large chunks of the standard library

@@ -66,13 +66,13 @@ namespace FileManager
 	void FileSet::Display()
 	{
 		FileListUpdated();
-		UI::DisplayFilesOrMacrosList(isFilesList, cardNumber, numVolumes);
+		//UI::DisplayFilesOrMacrosList(isFilesList, cardNumber, numVolumes);
 		SetPending();							// refresh the list of files
 	}
 
 	void FileSet::Reload(int whichList, const Path& dir, int errCode)
 	{
-		UI::FileListLoaded(isFilesList, errCode);			// do this first to show/hide the error message
+		//UI::FileListLoaded(isFilesList, errCode);			// do this first to show/hide the error message
 		if (errCode == 0)
 		{
 			SetIndex(whichList);
@@ -102,12 +102,12 @@ namespace FileManager
 			}
 			if (fileNum < index.size())
 			{
-				again = UI::UpdateMacroShortList(buttonNum, index[fileNum]);
+				//again = UI::UpdateMacroShortList(buttonNum, index[fileNum]);
 				++fileNum;
 			}
 			else
 			{
-				again = UI::UpdateMacroShortList(buttonNum, nullptr);
+				//again = UI::UpdateMacroShortList(buttonNum, nullptr);
 			}
 			++buttonNum;
 		} while (again);
@@ -127,12 +127,12 @@ namespace FileManager
 			}
 			else if ((unsigned int)scrollOffset >= fileIndex.size())
 			{
-				const unsigned int scrollAmount = UI::GetNumScrolledFiles(isFilesList);
-				scrollOffset = ((fileIndex.size() - 1)/scrollAmount) * scrollAmount;
+				//const unsigned int scrollAmount = UI::GetNumScrolledFiles(isFilesList);
+				//scrollOffset = ((fileIndex.size() - 1)/scrollAmount) * scrollAmount;
 			}
 
 			// 3. Display the scroll buttons if needed
-			UI::EnableFileNavButtons(isFilesList, scrollOffset != 0, scrollOffset + numDisplayed < fileIndex.size(), IsInSubdir());
+			//UI::EnableFileNavButtons(isFilesList, scrollOffset != 0, scrollOffset + numDisplayed < fileIndex.size(), IsInSubdir());
 
 			// 4. Display the file list
 			for (size_t i = 0; i < numDisplayed; ++i)
@@ -140,21 +140,21 @@ namespace FileManager
 				if (i + scrollOffset < fileIndex.size())
 				{
 					const char *text = fileIndex[i + scrollOffset];
-					UI::UpdateFileButton(isFilesList, i, (isFilesList) ? text : SkipDigitsAndUnderscore(text), text);
+					//UI::UpdateFileButton(isFilesList, i, (isFilesList) ? text : SkipDigitsAndUnderscore(text), text);
 				}
 				else
 				{
-					UI::UpdateFileButton(isFilesList, i, nullptr, nullptr);
+					//UI::UpdateFileButton(isFilesList, i, nullptr, nullptr);
 				}
 			}
 			displayedFileSet = this;
 		}
 		else
 		{
-			UI::EnableFileNavButtons(isFilesList, false, false, false);
+			//UI::EnableFileNavButtons(isFilesList, false, false, false);
 			for (size_t i = 0; i < numDisplayed; ++i)
 			{
-				UI::UpdateFileButton(isFilesList, i, nullptr, nullptr);
+				//UI::UpdateFileButton(isFilesList, i, nullptr, nullptr);
 			}
 		}
 	}
@@ -268,7 +268,7 @@ namespace FileManager
 		if (isFilesList && cardNum < numVolumes)
 		{
 			cardNumber = cardNum;
-			UI::DisplayFilesOrMacrosList(isFilesList, cardNumber, numVolumes);
+			//UI::DisplayFilesOrMacrosList(isFilesList, cardNumber, numVolumes);
 			whichList = -1;
 			FileListUpdated();								// this hides the file list until we receive a new one
 
@@ -347,10 +347,10 @@ namespace FileManager
 					macroFilesList.ReloadMacroShortList(errorCode);
 				}
 			}
-			else if (!UI::IsDisplayingFileInfo())
+			/*else if (!UI::IsDisplayingFileInfo())
 			{
 				gcodeFilesList.Reload(newFileList, fileDirectoryName, errorCode);
-			}
+			}*/
 			newFileList = -1;
 		}
 	}

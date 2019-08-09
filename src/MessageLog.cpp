@@ -94,12 +94,7 @@ namespace MessageLog
 					}
 				}
 			}
-			messageTimeFields[i]->SetValue(p);
 
-			if (all)
-			{
-				messageTextFields[i]->SetValue(m->msg);
-			}
 			index = (index + 1) % numMessageRows;
 		}
 	}
@@ -170,7 +165,6 @@ namespace MessageLog
 			if (*msg != 0)
 			{
 				AppendMessage(msg);
-				UI::NewResponseReceived(msg);
 			}
 			newMessage.clear();
 		}
