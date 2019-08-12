@@ -2177,6 +2177,45 @@ void UTFT::drawBitmap4(int x, int y, int sx, int sy, const uint8_t * data, Palet
 	removeCS();
 }
 
+// Draw a bitmap using 2-bit colours and replaces 1. by colour of choice
+void UTFT::drawBitmap2Colorized(int x, int y, int width, int height, const uint8_t *data, int scale, bool byCols)
+{
+	uint16_t curY = y;
+	uint16_t curX = x;
+
+	uint8_t curByteCount = 0;
+	int8_t curBytePos = 0;
+	uint8_t curByte = data[curByteCount];
+
+	assertCS();
+	for (int yy=0; yy<height; yy++)
+	{
+		for (int xx=0; xx<width; xx++)
+		{
+			if ( ((curByte>>curBytePos) & 0x01) == 1)
+			{
+				setXY(curX, curY, curX, curY);
+				LCD_Write_DATA16(fcolour);
+			}
+
+			curBytePos++;
+			if (curBytePos > 7)
+			{
+				curBytePos = 0;
+				curByteCount++;
+				curByte = data[curByteCount];
+			}
+
+			curX++;
+		}
+
+		curX = x;
+		curY++;
+	}
+	removeCS();
+
+}
+
 // Draw a compressed bitmap. Data comprises alternate (repeat count - 1, data to write) pairs, both as 16-bit values.
 void UTFT::drawCompressedBitmap(int x, int y, int sx, int sy, const uint16_t *data)
 {

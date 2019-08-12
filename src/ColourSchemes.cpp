@@ -123,7 +123,7 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 		.labelTextColour = white,
 		.infoTextColour = white,
 		.infoBackColour = veryDarkGrey,
-		.defaultBackColour = veryDarkGrey,
+		.defaultBackColour = UTFT::fromRGB(30, 30, 30),
 		.activeBackColour = red,
 		.standbyBackColour = yellow,
 		.tuningBackColour = darkGrey,
@@ -158,7 +158,13 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 		.progressBarColour = midGrey,
 		.progressBarBackColour = veryDarkGrey,
 		.stopButtonTextColour = white,
-		.stopButtonBackColour = red
+		.stopButtonBackColour = red,
+
+
+		/**** new ones ****/
+		.toolBarBackColor = UTFT::fromRGB(15, 15, 15),
+		.toolBarFontColor = UTFT::fromRGB(255,255,255),
+		.toolBarActiveColor = UTFT::fromRGB(33, 150, 243)
 	}
 };
 

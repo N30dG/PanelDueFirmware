@@ -758,7 +758,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				//UI::UpdateActiveTemperature(indices[0], ival);
+				UI::UpdateActiveTemperature(indices[0], ival);
 			}
 		}
 		break;
@@ -769,7 +769,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				//UI::UpdateStandbyTemperature(indices[0], ival);
+				UI::UpdateStandbyTemperature(indices[0], ival);
 			}
 		}
 		break;
@@ -781,7 +781,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			if (GetFloat(data, fval))
 			{
 				ShowLine;
-				//UI::UpdateCurrentTemperature(indices[0], fval);
+				UI::UpdateCurrentTemperature(indices[0], fval);
 			}
 		}
 		break;
@@ -792,7 +792,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			int32_t ival;
 			if (GetInteger(data, ival))
 			{
-				//UI::UpdateHeaterStatus(indices[0], ival);
+				UI::UpdateHeaterStatus(indices[0], ival);
 			}
 		}
 		break;
@@ -1102,7 +1102,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			uint32_t i;
 			if (GetUnsignedInteger(data, i))
 			{
-				//UI::SetNumTools(i);
+				UI::SetNumTools(i);
 			}
 		}
 		break;
@@ -1149,7 +1149,7 @@ void ProcessArrayEnd(const char id[], const size_t indices[])
 	}
 	if (strcmp(id, "heaters^") == 0)
 	{
-		//UI::SetNumHeaters(indices[0]);					// tell the user interface how many heaters there are
+		UI::SetNumHeaters(indices[0]);					// tell the user interface how many heaters there are
 	}
 }
 
@@ -1270,8 +1270,8 @@ int main(void)
 	lastPollTime = SystemTick::GetTickCount() - printerPollInterval;	// allow a poll immediately
 	
 	// Hide the Head 2+ parameters until we know we have a second head
-	//UI::SetNumHeaters(2);
-	//UI::SetNumTools(1);
+	UI::SetNumHeaters(2);
+	UI::SetNumTools(1);
 	
 	//debugField->Show(DEBUG != 0);					// show the debug field only if debugging is enabled
 
@@ -1323,14 +1323,14 @@ int main(void)
 						{
 							TouchBeep();		// give audible feedback of the touch, unless adjusting the volume
 						}
-						//UI::ProcessTouch(bp);
+						UI::ProcessTouch(bp);
 					}
 					else
 					{
 						bp = mgr.FindEventOutsidePopup(x, y);
 						if (bp.IsValid())
 						{
-							//UI::ProcessTouchOutsidePopup(bp);
+							UI::ProcessTouchOutsidePopup(bp);
 						}
 					}
 				}

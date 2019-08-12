@@ -18,7 +18,8 @@ enum Event : uint8_t
 	evTabControl, evTabPrint, evTabMsg, evTabSetup,
 
 	// Heater control
-	evSelectHead, evAdjustActiveTemp, evAdjustStandbyTemp,
+	evSelectHead, evSwitchHeadStatus,
+	evAdjustActiveTemp, evAdjustStandbyTemp,
 
 	// Control functions
 	evMovePopup, evExtrudePopup, evFan, evListMacros,

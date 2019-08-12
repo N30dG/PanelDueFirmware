@@ -82,6 +82,7 @@ struct StringTable
 	CSTRING messages;
 	CSTRING firmwareVersion;
 	CSTRING response;
+	CSTRING status;
 
 	// File popup
 	CSTRING filesOnCard;
@@ -101,6 +102,9 @@ struct StringTable
 
 	// Printer status strings
 	CSTRING statusValues[NumStatusStrings];
+
+	// Heater status values
+	CSTRING heaterStatus[5];
 
 	// Colour theme names
 	CSTRING colourSchemeNames[NumColourSchemes];
@@ -173,6 +177,7 @@ const StringTable LanguageTables[NumLanguages] =
 		"Messages",
 		"Panel Due firmware version ",	// note space at end
 		"Response",
+		"Status",
 
 		// File popup
 		"Files on card ",				// note the space on the end
@@ -205,6 +210,15 @@ const StringTable LanguageTables[NumLanguages] =
 			"Changing tool",
 			"Simulating",
 			"Standby"
+		},
+
+		// Heater status strings
+		{
+			"off",
+		    "standby",
+			"active",
+			"error",
+			"tuning"
 		},
 
 		// Theme names
@@ -243,7 +257,7 @@ const StringTable LanguageTables[NumLanguages] =
 		// Print page
 		"Extruder" THIN_SPACE "%",
 		"Tempo ",							// note space at end. Was "Geschwindigkeit " but that is too long to fit in the space available.
-		"Lüfter ",							// note space at end
+		"LÃ¼fter ",							// note space at end
 		"Restzeit: ",
 		"Datei ",							// note space at end
 		", Filament ",						// note space at end
@@ -256,7 +270,7 @@ const StringTable LanguageTables[NumLanguages] =
 		"Set",
 
 		// Setup page
-		"Lautstärke ",						// note space at end
+		"LautstÃ¤rke ",						// note space at end
 		"Touch kalibrieren",
 		"Anzeige spiegeln",
 		"Anzeige umkehren",
@@ -269,21 +283,22 @@ const StringTable LanguageTables[NumLanguages] =
 		"Info timeout ",					// note space at end
 
 		// Misc
-		"Alle Einstellungen zurücksetzen",
-		"Die Datei wird gelöscht",
+		"Alle Einstellungen zurÃ¼cksetzen",
+		"Die Datei wird gelÃ¶scht",
 		"Sind sie sicher?",
 		"Bitte auf den Punkt tippen",
 		"Kopf bewegen",
 		"Extrusionsmenge (mm)",
 		"Geschwindigkeit (mm/s)",
 		"Extrudieren",
-		"Zurückziehen",
+		"ZurÃ¼ckziehen",
 		"Einzelschritte",
 		"Aktueller Z-Versatz: ",
 		"Nachricht",
 		"Nachrichten",
 		"Panel Due Firmwareversion ",	// note space at end
 		"Antwort",
+		"Status",
 
 		// File popup
 		"Dateien auf Karte ",			// note the space on the end
@@ -291,13 +306,13 @@ const StringTable LanguageTables[NumLanguages] =
 		"Fehler ",						// note the space at the end
 		" beim Zugriff auf SD-Karte",	// note the space at the start
 		"Dateiname: ",
-		"Größe: ",
-		"Schichthöhe: ",
-		"Objekthöhe: ",
-		"Benötigtes Filament: ",
+		"GrÃ¶ÃŸe: ",
+		"SchichthÃ¶he: ",
+		"ObjekthÃ¶he: ",
+		"BenÃ¶tigtes Filament: ",
 		"Erzeugt mit: ",
-		"Letzte Änderung: ",
-		"Geschätzte Druckdauer: ",
+		"Letzte Ã„nderung: ",
+		"GeschÃ¤tzte Druckdauer: ",
 		"Errechnete Druckdauer: ",
 		"Simulieren",
 
@@ -309,13 +324,22 @@ const StringTable LanguageTables[NumLanguages] =
 			"Angehalten",
 			"Starte",
 			"Pausiert",
-			"Beschäftigt",
+			"BeschÃ¤ftigt",
 			"Pausiere",
 			"Fortsetzen",
 			"Firmware-Upload",
 			"Wechsle Tool",
 			"Simuliert",
 			"Stand-by"
+		},
+
+		// Heater status strings
+		{
+			"Aus",
+		    "Stand-by",
+			"Aktiv",
+			"Fehler",
+			"Kalibrierr",
 		},
 
 		// Theme names
@@ -339,7 +363,7 @@ const StringTable LanguageTables[NumLanguages] =
 		"fr",
 
 		// Main page strings
-		"Contrôle",
+		"ContrÃ´le",
 		"Imprimer",
 		"Console",
 		"Installation",
@@ -349,7 +373,7 @@ const StringTable LanguageTables[NumLanguages] =
 		"Mouvement",
 		"Extrusion",
 		"Macro",
-		"ARRÊT",
+		"ARRÃŠT",
 
 		// Print page
 		"Extrudeuse" THIN_SPACE "%",
@@ -369,47 +393,48 @@ const StringTable LanguageTables[NumLanguages] =
 		// Setup page
 		"Volume ",								// note space at end
 		"Calibrer touch",
-		"Affichage en négatif",
+		"Affichage en nÃ©gatif",
 		"Inverser affichage",
-		"Théme",
-		"Luminosité -",
-		"Luminosité +",
-		"Sauver paramêtres",
-		"Effacer paramêtres",
-		"Sauvegarde & Redémarrage",
+		"ThÃ©me",
+		"LuminositÃ© -",
+		"LuminositÃ© +",
+		"Sauver paramÃªtres",
+		"Effacer paramÃªtres",
+		"Sauvegarde & RedÃ©marrage",
 		"Info timeout ",						// note space at end
 
 		// Misc
-		"Confirmer le réinitialisation de l'imprimante",
+		"Confirmer le rÃ©initialisation de l'imprimante",
 		"Confirm suppression fichier",
-		"Vous êtes sûre?",
+		"Vous Ãªtes sÃ»re?",
 		"Appuyer sur le point",
-		"Mouvement de la  tête",
-		"Quantité de Matière extrudée (mm)",
+		"Mouvement de la  tÃªte",
+		"QuantitÃ© de MatiÃ¨re extrudÃ©e (mm)",
 		"Vitesse (mm/s)",
 		"Extruder",
 		"Retracter",
 		"Baby stepping",
-		"décalage Z courant : ",
+		"dÃ©calage Z courant : ",
 		"Message",
 		"Messages",
 		"Version du firmware du Panel Due ",	// note space at end
-		"Réponse",
+		"RÃ©ponse",
+		"Status",								//<--FixMe: still English
 
 		// File popup
 		"Fichier sur carte ",					// note the space on the end
 		"Macros",
 		"Erreur ",								// note the space at the end
-		" accés SD card en cours",				// note the space at the start
+		" accÃ©s SD card en cours",				// note the space at the start
 		"Nom du fichier : ",
 		"Taille : ",
 		"Hauteur de couche: ",
 		"Hauteur de l'objet: ",
 		"Filament requis: ",
 		"Sliced par: ",
-		"Dernière modification: ",
-		"Temps d'impression estimé: ",
-		"Temps d'impression simulé: ",
+		"DerniÃ¨re modification: ",
+		"Temps d'impression estimÃ©: ",
+		"Temps d'impression simulÃ©: ",
 		"Simuler",
 
 		// Printer status strings
@@ -417,16 +442,25 @@ const StringTable LanguageTables[NumLanguages] =
 			"Liaison en cours",					// "Connexion en cours" was too long
 			"Au repos",
 			"Impression",
-			"Arrêt",
-			"Démarrage",
+			"ArrÃªt",
+			"DÃ©marrage",
 			"Pause",
-			"Occupé"
+			"OccupÃ©"
 			"Pause",
 			"Reprise",
 			"Flasher firmware",
 			"Changer outil",
 			"Simuler",
 			"En veille"
+		},
+
+		// Heater status strings FixMe: (still in English)
+		{
+			"off",
+		    "standby",
+			"active",
+			"error",
+			"tuning"
 		},
 
 		// Theme names
@@ -453,12 +487,12 @@ const StringTable LanguageTables[NumLanguages] =
 		"Control",
 		"Imprimir",
 		"Consola",
-		"Configuración",
+		"ConfiguraciÃ³n",
 		"Actual" THIN_SPACE DEGREE_SYMBOL "C",
 		"Activo" THIN_SPACE DEGREE_SYMBOL "C",
 		"Esperando" THIN_SPACE DEGREE_SYMBOL "C",
 		"Mover",
-		"Extrusión",
+		"ExtrusiÃ³n",
 		"Macro",
 		"PARADA",							// It could also be STOP, both are OK
 
@@ -485,27 +519,28 @@ const StringTable LanguageTables[NumLanguages] =
 		"Tema",
 		"Brillo -",
 		"Brillo +",
-		"Guardar parámetros",
-		"Borrar parámetros",
+		"Guardar parÃ¡metros",
+		"Borrar parÃ¡metros",
 		"Guardar y Reiniciar",
 		"Info timeout ",					// note space at end
 
 		// Misc
-		"Confirma restablecimiento de fábrica",
+		"Confirma restablecimiento de fÃ¡brica",
 		"Confirma borrar archivo",
-		"Está seguro?",
+		"EstÃ¡ seguro?",
 		"Tocar el punto",
 		"Mover cabezal",
-		"Cantidad de extrusión (mm)",
+		"Cantidad de extrusiÃ³n (mm)",
 		"Velocidad (mm/s)",
 		"Extruir",
 		"Retraer",
 		"Micro paso",
-		"Separación actual de Z: ",
+		"SeparaciÃ³n actual de Z: ",
 		"Mensaje",
 		"Mensajes",
-		"Panel Due versión de firmware ",	// note space at end
+		"Panel Due versiÃ³n de firmware ",	// note space at end
 		"Respuesta",
+		"Status",							//<--FixMe: still English
 
 		// File popup
 		"Archivos en la tarjeta ",			// note the space on the end
@@ -513,19 +548,19 @@ const StringTable LanguageTables[NumLanguages] =
 		"Error ",							// note the space at the end
 		" accediendo a la tarjeta SD",		// note the space at the start
 		"Nombre de archivo: ",
-		"Tamaño: ",
+		"TamaÃ±o: ",
 		"Altura de capa: ",
 		"Altura de objeto: ",
 		"Filamento necesario: ",
 		"Procesado por: ",					// there is no translation in spanish for this meaning, so I proposed to use "processed by" which is understandable
-		"Última modificación: ",
-		"Tiempo estimado de impresión: ",
-		"Tiempo de impresión simulado: ",
+		"Ãšltima modificaciÃ³n: ",
+		"Tiempo estimado de impresiÃ³n: ",
+		"Tiempo de impresiÃ³n simulado: ",
 		"Simular",
 
 		// Printer status strings
 		{
-			"conexión",
+			"conexiÃ³n",
 			"en espera",					// it's more frequently use "en espera" than "ocioso", it makes more sense for a machine
 			"imprimiendo",
 			"detuvo",
@@ -538,6 +573,15 @@ const StringTable LanguageTables[NumLanguages] =
 			"herramienta de cambio",
 			"simulando",
 			"en espera"
+		},
+
+		// Heater status strings FixMe: (still in English)
+		{
+			"off",
+		    "standby",
+			"active",
+			"error",
+			"tuning"
 		},
 
 		// Theme names
@@ -561,13 +605,13 @@ const StringTable LanguageTables[NumLanguages] =
 		"cs",
 
 		// Main page strings
-		"Ovládání",
+		"OvlÃ¡dÃ¡nÃ­",
 		"Tisk",
 		"Konzole",
-		"Nastavení",
-		"Aktuální" THIN_SPACE DEGREE_SYMBOL "C",
-		"Aktivní" THIN_SPACE DEGREE_SYMBOL "C",
-		"Nečinná" THIN_SPACE DEGREE_SYMBOL "C",
+		"NastavenÃ­",
+		"AktuÃ¡lnÃ­" THIN_SPACE DEGREE_SYMBOL "C",
+		"AktivnÃ­" THIN_SPACE DEGREE_SYMBOL "C",
+		"NeÄ�innÃ¡" THIN_SPACE DEGREE_SYMBOL "C",
 		"Pohyb",
 		"Extruder",
 		"Makra",
@@ -577,57 +621,58 @@ const StringTable LanguageTables[NumLanguages] =
 		"Extruder" THIN_SPACE "%",
 		"Rychl. ",							// note space at end
 		"Vent. ",							// note space at end
-		"Čas do konce: ",
+		"ÄŒas do konce: ",
 		"soubor ",							// note space at end
-		", materiál ",						// note space at end
+		", materiÃ¡l ",						// note space at end
 		", vrstva ",						// note space at end
 		"n/a",
 		"Pozastavit",
 		"Baby step",
-		"Pokračovat",
-		"Zrušit",
+		"PokraÄ�ovat",
+		"ZruÅ¡it",
 		"OK",
 
 		// Setup page
 		"Hlasitost ",						// note space at end
 		"Kalibrace dotyku",
 		"Zrcadlit displej",
-		"Obrátit displej",
+		"ObrÃ¡tit displej",
 		"Motiv",
-		"Podsvícení -",
-		"Podsvícení +",
-		"Uložit nastavení",
-		"Smazat nastavení",
-		"Uložit a Restart",
+		"PodsvÃ­cenÃ­ -",
+		"PodsvÃ­cenÃ­ +",
+		"UloÅ¾it nastavenÃ­",
+		"Smazat nastavenÃ­",
+		"UloÅ¾it a Restart",
 		"Info timeout ",					// note space at end
 
 		// Misc
-		"Skutečně obnovit tovární nastavení?",
-		"Skutečně smazat?",
-		"Určitě?",
-		"Dotkněte se bodu",
+		"SkuteÄ�nÄ› obnovit tovÃ¡rnÃ­ nastavenÃ­?",
+		"SkuteÄ�nÄ› smazat?",
+		"UrÄ�itÄ›?",
+		"DotknÄ›te se bodu",
 		"Posun hlavy",
-		"Množství (mm)",
+		"MnoÅ¾stvÃ­ (mm)",
 		"Rychlost (mm/s)",
-		"Vytlačit (extr.)",
-		"Zatlačit (retr.)",
+		"VytlaÄ�it (extr.)",
+		"ZatlaÄ�it (retr.)",
 		"Baby stepping",
-		"Aktuální Z offset: ",
-		"Zpráva",
-		"Zprávy",
+		"AktuÃ¡lnÃ­ Z offset: ",
+		"ZprÃ¡va",
+		"ZprÃ¡vy",
 		"Verze firmware Panel Due ",	// note space at end
-		"Odpověď",
+		"OdpovÄ›Ä�",
+		"Status", 						//<--FixMe: still English
 
 		// File popup
-		"Soubory na kartě ",			// note the space on the end
+		"Soubory na kartÄ› ",			// note the space on the end
 		"Makra",
 		"Chyba ",						// note the space at the end
-		" přístupu ke kartě",			// note the space at the start
-		"Název: ",
+		" pÅ™Ã­stupu ke kartÄ›",			// note the space at the start
+		"NÃ¡zev: ",
 		"Velikost: ",
-		"Výška vrstvy: ",
-		"Výška objektu: ",
-		"Spotřeba (mat.): ",
+		"VÃ½Å¡ka vrstvy: ",
+		"VÃ½Å¡ka objektu: ",
+		"SpotÅ™eba (mat.): ",
 		"Slicer: ",
 		"Last modified: ",
 		"Estimated print time: ",
@@ -636,33 +681,42 @@ const StringTable LanguageTables[NumLanguages] =
 
 		// Printer status strings
 		{
-			"Připojování",
-			"Nečinný",
+			"PÅ™ipojovÃ¡nÃ­",
+			"NeÄ�innÃ½",
 			"Tiskne",
 			"Zastaven",
 			"Startuje",
 			"Pozastaven",
-			"Zaneprázdněný",
+			"ZaneprÃ¡zdnÄ›nÃ½",
 			"Pozastavuje se",
-			"Pokračuje",
-			"Nahrává firmware",
-			"Výměna nástroje",
+			"PokraÄ�uje",
+			"NahrÃ¡vÃ¡ firmware",
+			"VÃ½mÄ›na nÃ¡stroje",
 			"Simulace",
-			"Pohotovostní"
+			"PohotovostnÃ­"
+		},
+
+		// Heater status strings FixMe: (still in English)
+		{
+			"off"
+		    "standby",
+			"active",
+			"error",
+			"tuning"
 		},
 
 		// Theme names
 		{
-			"Světlý",
-			"Tmavý 1",
-			"Tmavý 2"
+			"SvÄ›tlÃ½",
+			"TmavÃ½ 1",
+			"TmavÃ½ 2"
 		},
 
 		// Display dimming types
 		{
-			"Nikdy nezměníme",
+			"Nikdy nezmÄ›nÃ­me",
 			"Idle Dim",
-			"Vždy Dim"
+			"VÅ¾dy Dim"
 		}
 	}
 };

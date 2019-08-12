@@ -75,7 +75,7 @@ class DisplayField
 protected:
 	PixelNumber y, x;							// Coordinates of top left pixel, counting from the top left corner
 	PixelNumber width;							// number of pixels wide
-	Colour fcolour, bcolour;					// foreground and background colours
+	Colour fcolor, bcolor;					// foreground and background colours
 	uint16_t changed : 1,
 			visible : 1,
 			underlined : 1,						// really belongs in class FieldWithText, but stored here to save space
@@ -83,8 +83,12 @@ protected:
 			textRows : 2;						// really belongs in class FieldWithText, but stored here to save space
 	
 	static LcdFont defaultFont;
-	static Colour defaultFcolour, defaultBcolour;
-	static Colour defaultButtonBorderColour, defaultGradColour, defaultPressedBackColour, defaultPressedGradColour;
+	static Colour defaultFcolor, defaultBcolor;
+	static Colour defaultActiveFcolor, defaultActiveBcolor;
+	static Colour defaultBorderColor;
+
+
+
 	static Palette defaultIconPalette;
 	
 protected:
@@ -101,7 +105,7 @@ public:
 	virtual bool IsVisible() const { return visible; }
 	void Show(bool v);
 	virtual void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) = 0;
-	void SetColours(Colour pf, Colour pb);
+	void SetColors(Colour fc, Colour bc);
 	void SetChanged() { changed = true; }
 	bool HasChanged() const { return changed; }
 	PixelNumber GetMinX() const { return x; }
@@ -113,8 +117,8 @@ public:
 
 	virtual event_t GetEvent() const { return nullEvent; }
 
-	static void SetDefaultColours(Colour pf, Colour pb) { defaultFcolour = pf; defaultBcolour = pb; }
-	static void SetDefaultColours(Colour pf, Colour pb, Colour pbb, Colour pg, Colour pbp, Colour pgp, Palette pal);
+	static void SetDefaultColours(Colour pf, Colour pb) { defaultFcolor = pf; defaultBcolor = pb; }
+	static void SetDefaultColours(Colour font, Colour back, Colour border, Colour activeFont, Colour activeBack, Palette pal);
 	static void SetDefaultFont(LcdFont pf) { defaultFont = pf; }
 	static ButtonPress FindEvent(PixelNumber x, PixelNumber y, DisplayField * null p);
 	
@@ -174,7 +178,7 @@ class PopupWindow : public Window
 {
 private:
 	PixelNumber height, width, xPos, yPos;
-	Colour borderColour;
+	Colour borderColor;
 	
 public:
 	PopupWindow(PixelNumber ph, PixelNumber pw, Colour pb, Colour pBorder);
@@ -224,6 +228,7 @@ protected:
 	}
 		
 public:
+	void setFont(LcdFont f);
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
 };
 
@@ -237,23 +242,19 @@ protected:
 	void PrintText() const override;
 
 public:
-	TextField(PixelNumber py, PixelNumber px, PixelNumber pw, TextAlignment pa,
-				const char * array null pl, const char* array null pt = nullptr, bool withBorder = false)
-		: FieldWithText(py, px, pw, pa, withBorder), label(pl), text(pt)
-	{
-	}
-
+	TextField(PixelNumber py, PixelNumber px, PixelNumber pw, TextAlignment pa, const char * array null pl, const char* array null pt = nullptr, bool withBorder = false)
+		: FieldWithText(py, px, pw, pa, withBorder), label(pl), text(pt){}
 	void SetValue(const char* array s)
 	{
 		text = s;
 		changed = true;
 	}
-
 	void SetLabel(const char* array s)
 	{
 		label = s;
 		changed = true;
 	}
+
 };
 
 // Class to display an optional label, a floating point value, and an optional units string
@@ -332,7 +333,7 @@ public:
 class ButtonBase : public DisplayField
 {
 protected:
-	Colour borderColour, gradColour, pressedBackColour, pressedGradColour;
+	Colour activeFcolor, activeBcolor;
 	event_t evt;								// event number that is triggered by touching this field
 	bool pressed;								// putting this here instead of in SingleButton saves 4 byes per button
 
@@ -460,9 +461,8 @@ public:
 class TextButton : public ButtonWithText
 {
 	friend class ShadowTextButton;
-
 	const char * array null text;
-	
+
 protected:
 	size_t PrintText(size_t offset) const override;
 
@@ -493,6 +493,28 @@ public:
 	IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, Icon ic, event_t e, const char * array param);
 
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
+};
+
+// Button with an icon and float-text
+class IconFloatButton : public SingleButton
+{
+	Icon icon;
+	float value;
+	PixelNumber height;
+
+	static LcdFont font;
+
+protected:
+	PixelNumber GetHeight() const override { return height; }
+
+public:
+	IconFloatButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, float val, event_t e, int param = 0);
+	IconFloatButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, float val, event_t e, const char * array param);
+
+	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
+
+	static void SetFont(LcdFont f);
+	void SetValue(float val);
 };
 
 // Button that displays an integer value, optionally preceded by a label and followed by units
@@ -592,4 +614,13 @@ public:
 	PixelNumber GetHeight() const override { return height; }
 };
 
+class StaticToolBar: public DisplayField {
+	PixelNumber height;
+
+public:
+	StaticToolBar(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph) : DisplayField(py, px, pw), height(ph) {}
+
+	PixelNumber GetHeight() const override { return height; }
+	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
+};
 #endif /* DISPLAY_H_ */

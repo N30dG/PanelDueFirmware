@@ -12,14 +12,18 @@
 #include "DisplaySize.hpp"
 
 
-/**** All off this is from theold UI! Keept to don't break other thing's, that we do not want to delete for now ***/
+/**** All off this is from the old UI! ****/
+/**** Keept to don't break other thing's, that we do not want to delete for now ***/
 const unsigned int MaxHeaters = 7;
 #define MaxAxes (6)
 
 const unsigned int NumDisplayedFiles = 10;
 
 extern uint8_t glcd28x32[];
-#define DEFAULT_FONT	glcd28x32
+extern uint8_t glcd22x32[];
+extern uint8_t glcd20x30[];
+extern uint8_t glcd19x21[];
+#define DEFAULT_FONT	glcd22x32
 
 
 const size_t NumColourSchemes = 3;
@@ -31,7 +35,10 @@ const PixelNumber touchCalibMargin = 15;
 const unsigned int NumDisplayedMacros = 10;
 const PixelNumber textButtonMargin = 1;
 const PixelNumber iconButtonMargin = 2;
+const uint8_t toolbarDropdownWidth = 110;
 
+#define TOOL_DROPDOWN_WIDTH 180
+#define TOOL_DROPDOWN_HEIGHT 250
 
 
 #endif /* SRC_USERINTERFACECONSTANTS_HPP_ */
