@@ -15,7 +15,7 @@ enum Event : uint8_t
 	evNull = 0,						// value must match nullEvent declared in Display.hpp
 
 	// Page selection
-	evTabControl, evTabPrint, evTabMsg, evTabSetup,
+	evSelectTab,
 
 	// Heater control
 	evSelectHead, evSwitchHeadStatus,

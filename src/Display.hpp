@@ -72,6 +72,8 @@ public:
 // Base class for a displayable field
 class DisplayField
 {
+	friend class DisplayGroup;
+
 protected:
 	PixelNumber y, x;							// Coordinates of top left pixel, counting from the top left corner
 	PixelNumber width;							// number of pixels wide
@@ -190,6 +192,24 @@ public:
 	void Refresh(bool full) override;
 	void SetPos(PixelNumber px, PixelNumber py) { xPos = px; yPos = py; }
 	bool Contains(PixelNumber xmin, PixelNumber ymin, PixelNumber xmax, PixelNumber ymax) const override;
+};
+
+class DisplayGroup : public DisplayField
+{
+private:
+	PixelNumber height;
+	DisplayField * null root;
+
+protected:
+	PixelNumber GetHeight() const override { return height; }
+	bool ObscuredByPopup(const DisplayField *p) const;
+	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
+	void CheckEvent(PixelNumber x, PixelNumber y, int& bestError, ButtonPress& best) override;
+
+public:
+	DisplayGroup(PixelNumber X, PixelNumber Y, PixelNumber w, PixelNumber h);
+	void AddField(DisplayField *p);
+	void Show(bool v);
 };
 
 class ColourGradientField : public DisplayField
@@ -484,15 +504,18 @@ public:
 class IconButton : public SingleButton
 {
 	Icon icon;
+	PixelNumber height;
 	
 protected:
 	PixelNumber GetHeight() const override { return GetIconHeight(icon) + 2 * iconMargin + 2; }
 
 public:
-	IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, Icon ic, event_t e, int param = 0);
-	IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, Icon ic, event_t e, const char * array param);
+	IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, event_t e, int param = 0);
+	IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, event_t e, const char * array param);
 
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
+
+	void SetColors(Colour fc, Colour bc);
 };
 
 // Button with an icon and float-text
@@ -501,11 +524,13 @@ class IconFloatButton : public SingleButton
 	Icon icon;
 	float value;
 	PixelNumber height;
+	bool iconChanged;
 
 	static LcdFont font;
 
 protected:
 	PixelNumber GetHeight() const override { return height; }
+	void DrawOutline(PixelNumber xOffset, PixelNumber yOffset) const;
 
 public:
 	IconFloatButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, float val, event_t e, int param = 0);
@@ -515,6 +540,7 @@ public:
 
 	static void SetFont(LcdFont f);
 	void SetValue(float val);
+	void SetColors(Colour fc, Colour bc);
 };
 
 // Button that displays an integer value, optionally preceded by a label and followed by units

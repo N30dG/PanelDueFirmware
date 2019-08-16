@@ -98,6 +98,7 @@ ButtonPress DisplayField::FindEvent(PixelNumber x, PixelNumber y, DisplayField *
 		p->CheckEvent(x, y, bestError, best);
 		p = p->next;
 	}
+
 	return best;
 }
 void DisplayField::SetColors(Colour fc, Colour bc)
@@ -110,23 +111,19 @@ void DisplayField::SetColors(Colour fc, Colour bc)
 	}
 }
 
-// ButtonPress class methods
+/**** Button Press ****/
 ButtonPress::ButtonPress() : button(nullptr), index(0) { }
-
 ButtonPress::ButtonPress(ButtonBase *b, unsigned int pi) : button(b), index(pi) { }
-
 void ButtonPress::Set(ButtonBase *b, unsigned int pi)
 {
 	button = b;
 	index = pi;
 }
-
 void ButtonPress::Clear()
 {
 	button = nullptr;
 	index = 0;
 }
-
 event_t ButtonPress::GetEvent() const
 {
 	return button->GetEvent();
@@ -144,12 +141,11 @@ const char* array ButtonPress::GetSParam() const
 
 bool ButtonPress::operator==(const ButtonPress& other) const { return button == other.button && index == other.index; }
 
-// Window class methods
+/**** Window ****/
 Window::Window(Colour pb)
 	: root(nullptr), next(nullptr), backgroundColour(pb)
 {
 }
-// Append a field to the list of displayed fields
 void Window::AddField(DisplayField *d)
 {
 	d->next = root;
@@ -164,18 +160,16 @@ bool Window::ObscuredByPopup(const DisplayField *p) const
 				|| next->ObscuredByPopup(p)
 			   );
 }
-bool Window::Visible(const DisplayField *p) const
+bool Window::Visible(const DisplayField *p) const 															// Get the field that has been touched, or nullptr if we can't find one
 {
 	return p->IsVisible() && !ObscuredByPopup(p);
 }
-// Get the field that has been touched, or nullptr if we can't find one
-ButtonPress Window::FindEvent(PixelNumber x, PixelNumber y)
+ButtonPress Window::FindEvent(PixelNumber x, PixelNumber y) 												// Get the field that has been touched, but search only outside the popup
 {
 	return (next != nullptr) ? next->FindEvent(x, y)
 			: (x < Xpos() || y < Ypos()) ? ButtonPress()
 				: DisplayField::FindEvent(x - Xpos(), y - Ypos(), root);
 }
-// Get the field that has been touched, but search only outside the popup
 ButtonPress Window::FindEventOutsidePopup(PixelNumber x, PixelNumber y)
 {
 	if (next == nullptr) return ButtonPress();
@@ -260,7 +254,6 @@ void Window::ClearPopup(bool redraw, PopupWindow *whichOne)
 		}
 	}
 }
-// Redraw the specified field
 void Window::Redraw(DisplayField *f)
 {
 	for (DisplayField * null p = root; p != nullptr; p = p->next)
@@ -325,7 +318,6 @@ void Window::Show(DisplayField * null f, bool v)
 		}
 	}
 }
-// Show the button as pressed or not
 void Window::Press(ButtonPress bp, bool v)
 {
 	if (bp.IsValid())
@@ -382,6 +374,61 @@ void MainWindow::ClearAllPopups()
 }
 
 
+/**** Display Group ****/
+DisplayGroup::DisplayGroup(PixelNumber X, PixelNumber Y, PixelNumber w, PixelNumber h)
+
+	: DisplayField(Y, X, w), height(h), root(nullptr)
+{
+
+};
+void DisplayGroup::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset)
+{
+
+	if ((IsVisible() && changed) || full)
+	{
+		// Draw a rectangle inside the border
+		lcd.setColor(bcolor);
+		lcd.fillRect(x + xOffset, y + yOffset, x + xOffset + width-1, y + yOffset + height-1);
+
+
+		for (DisplayField * null p = root; p != nullptr; p = p->next)
+		{
+			p->Refresh(full, x + xOffset, y + yOffset);
+		}
+
+		changed = false;
+	}
+
+}
+void DisplayGroup::AddField(DisplayField *d)
+{
+	d->next = root;
+	root = d;
+}
+void DisplayGroup::Show(bool v) {
+
+	if (visible != v)
+	{
+		visible = changed = v;
+
+		for (DisplayField * null p = root; p != nullptr; p = p->next)
+		{
+			p->Show(v);
+		}
+
+	}
+}
+void DisplayGroup::CheckEvent(PixelNumber x, PixelNumber y, int& bestError, ButtonPress& best) {
+	if (IsVisible())
+	{
+		for (DisplayField * null p = root; p != nullptr; p = p->next)
+		{
+			p->CheckEvent(x-GetMinX(), y-GetMinY(), bestError, best);
+		}
+	}
+}
+
+
 /**** PopupWindow ****/
 PopupWindow::PopupWindow(PixelNumber ph, PixelNumber pw, Colour pb, Colour pBorder)
 	: Window(pb), height(ph), width(pw), borderColor(pBorder)
@@ -420,6 +467,7 @@ bool PopupWindow::Contains(PixelNumber xmin, PixelNumber ymin, PixelNumber xmax,
 }
 
 
+/**** Color Gradient Field ****/
 void ColourGradientField::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset)
 {
 	if (full)
@@ -575,6 +623,7 @@ void TextField::PrintText() const
 }
 
 
+/**** Float Field ****/
 void FloatField::PrintText() const
 {
 	if (label != nullptr)
@@ -589,6 +638,7 @@ void FloatField::PrintText() const
 }
 
 
+/**** Integer Field ****/
 void IntegerField::PrintText() const
 {
 	if (label != nullptr)
@@ -603,6 +653,7 @@ void IntegerField::PrintText() const
 }
 
 
+/**** Static Text Field ****/
 void StaticTextField::PrintText() const
 {
 	if (text != nullptr)
@@ -741,13 +792,13 @@ size_t TextButton::PrintText(size_t offset) const
 
 
 /**** Icon Button ****/
-IconButton::IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, Icon ic, event_t e, int param)
-	: SingleButton(py, px, pw), icon(ic)
+IconButton::IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph,Icon ic, event_t e, int param)
+	: SingleButton(py, px, pw), icon(ic), height(ph)
 {
 	SetEvent(e, param);
 }
-IconButton::IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, Icon ic, event_t e, const char * array param)
-: SingleButton(py, px, pw), icon(ic)
+IconButton::IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, event_t e, const char * array param)
+: SingleButton(py, px, pw), icon(ic), height(ph)
 {
 	SetEvent(e, param);
 }
@@ -756,14 +807,24 @@ void IconButton::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset)
 	if (full || changed)
 	{
 		DrawOutline(xOffset, yOffset);
-		const uint16_t sx = GetIconWidth(icon), sy = GetIconHeight(icon);
+		const uint16_t iconWidth = GetIconWidth(icon), iconHeight = GetIconHeight(icon);
 		lcd.setTransparentBackground(true);
-		lcd.drawBitmap4(xOffset + x + (width - sx)/2, yOffset + y + iconMargin + 1, sx, sy, GetIconData(icon), defaultIconPalette);
+		PixelNumber iconOffsetY = (height - iconHeight)/2;
+		lcd.setColor(fcolor);
+		lcd.drawBitmap2Colorized(xOffset+x+iconMargin, yOffset+y+iconOffsetY, iconWidth, iconHeight, GetIconData(icon));
 		lcd.setTransparentBackground(false);
 		changed = false;
 	}
 }
-
+void IconButton::SetColors(Colour fc, Colour bc)
+{
+	if (fcolor != fc || bcolor != bc)
+	{
+		fcolor = fc;
+		bcolor = bc;
+		changed = true;
+	}
+}
 
 /**** Icon Float Button ****/
 /*static*/ LcdFont IconFloatButton::font;
@@ -777,6 +838,20 @@ IconFloatButton::IconFloatButton(PixelNumber py, PixelNumber px, PixelNumber pw,
 {
 	SetEvent(e, param);
 }
+void IconFloatButton::DrawOutline(PixelNumber xOffset, PixelNumber yOffset) const
+{
+	// Note that we draw the filled rounded rectangle with the full width but 2 pixels less height than the border.
+	// This means that we start with the requested colour inside the border.
+	const uint16_t iconW = GetIconWidth(icon);
+
+	lcd.setColor(bcolor);
+	if (iconChanged == false)
+		lcd.fillRect(x + xOffset + iconW + iconMargin*2, y + yOffset, x + xOffset + width-1, y + yOffset + GetHeight() - 1);
+	else
+		lcd.fillRect(x + xOffset, y + yOffset, x + xOffset + width-1, y + yOffset + GetHeight() - 1);
+	//lcd.setColor(borderColor);
+	//lcd.drawRoundRect(x + xOffset, y + yOffset, x + xOffset + width - 1, y + yOffset + GetHeight() - 1);
+}
 void IconFloatButton::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset)
 {
 	if (full || changed)
@@ -786,12 +861,17 @@ void IconFloatButton::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffse
 		const uint16_t iconWidth = GetIconWidth(icon), iconHeight = GetIconHeight(icon);
 
 		// draw icon
-		lcd.setTransparentBackground(true);
-		PixelNumber iconOffsetY = (height - iconHeight)/2;
-		//lcd.drawBitmap4(xOffset + x + iconMargin, yOffset + y + iconOffsetY, iconWidth, iconHeight, GetIconData(icon), defaultIconPalette);
-		lcd.setColor(fcolor);
-		lcd.drawBitmap2Colorized(xOffset+x+iconMargin, yOffset+y+iconOffsetY, iconWidth, iconHeight, GetIconData(icon));
-		lcd.setTransparentBackground(false);
+		if (iconChanged == true || full)
+		{
+			lcd.setTransparentBackground(true);
+			PixelNumber iconOffsetY = (height - iconHeight)/2;
+			//lcd.drawBitmap4(xOffset + x + iconMargin, yOffset + y + iconOffsetY, iconWidth, iconHeight, GetIconData(icon), defaultIconPalette);
+			lcd.setColor(fcolor);
+			lcd.drawBitmap2Colorized(xOffset+x+iconMargin, yOffset+y+iconOffsetY, iconWidth, iconHeight, GetIconData(icon));
+			lcd.setTransparentBackground(false);
+
+			iconChanged = false;
+		}
 
 		// draw text
 		PixelNumber textOffsetY = (height - UTFT::GetFontHeight(font))/2;
@@ -821,7 +901,16 @@ void IconFloatButton::SetValue(float val)
 	value = val;
 	changed = true;
 }
-
+void IconFloatButton::SetColors(Colour fc, Colour bc)
+{
+	if (fcolor != fc || bcolor != bc)
+	{
+		fcolor = fc;
+		bcolor = bc;
+		changed = true;
+		iconChanged = true;
+	}
+}
 
 
 

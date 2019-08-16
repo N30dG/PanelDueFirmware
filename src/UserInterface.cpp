@@ -22,17 +22,20 @@
 #include "Version.hpp"
 
 static const char* array const axisNames[] = { "X", "Y", "Z", "U", "V", "W" };
-const Icon toolIcons[MaxHeaters] = { IconBed, IconNozzle1, IconNozzle2, IconNozzle3, IconNozzle4, IconNozzle5, IconNozzle6 };
 const StringTable * strings = &LanguageTables[0];
 
 
-static DisplayField *nozzleBarBg;
-static IconFloatButton* tools[MaxHeaters];
+/**** Machine Variables ****/
 int heaterStatus[MaxHeaters];
 int activeTemps[MaxHeaters];
 int standbyTemps[MaxHeaters];
 static unsigned int numHeaters = 0;
 
+
+/**** ToolBar ****/
+const Icon toolIcons[MaxHeaters] = { IconBed, IconNozzle1, IconNozzle2, IconNozzle3, IconNozzle4, IconNozzle5, IconNozzle6 };
+static DisplayField *toolBarBg;
+static IconFloatButton* tools[MaxHeaters];
 
 static PopupWindow* tdd;
 
@@ -48,6 +51,11 @@ static IntegerButton* tddStandbyTemperature;
 static TextButton *tddStandbyInc, *tddStandbyDec;
 
 
+/**** MenuBar ****/
+const Icon menuIcons[MaxMenuEntrys] = { IconMachineControl, IconConsol, IconCurrentJob, IconFileManagement, IconSettings };
+static DisplayField *menuBarBg;
+static IconButton *menuEntrys[MaxMenuEntrys];
+static DisplayGroup *tabs[MaxMenuEntrys];
 
 namespace UI
 {
@@ -61,6 +69,26 @@ namespace UI
 
 			switch(ev)
 			{
+				case evSelectTab:
+				{
+					int tab = bp.GetIParam();
+					for (uint8_t i=0; i<MaxMenuEntrys; i++)
+					{
+						if (i == tab)
+						{
+							menuEntrys[i]->SetColors(colours->menuBarActiveColor, colours->menuBarBackColor);
+							tabs[tab]->Show(true);
+						}
+						else
+						{
+							menuEntrys[i]->SetColors(colours->menuBarFontColor, colours->menuBarBackColor);
+							tabs[i]->Show(false);
+						}
+
+
+					}
+				} break;
+
 				case evSelectHead:
 				{
 					int head = bp.GetIParam();
@@ -268,7 +296,7 @@ namespace UI
 	}
 
 
-	// Create the top Toolbar (Nozzle-Bar)
+	// Create Toolbar (Nozzle-Bar)
 	void CreateToolBar(const ColourScheme& colours) {
 		DisplayField::SetDefaultColours(colours.toolBarFontColor, colours.toolBarBackColor);
 
@@ -295,9 +323,9 @@ namespace UI
 		tddActiveTemperature = new IntegerButton(125, 50, TOOL_DROPDOWN_WIDTH-100);
 		tddActiveTemperature->SetEvent(evAdjustActiveTemp, 0);
 		tdd->AddField(tddActiveTemperature);
-		tddActiveInc = new TextButton(125, 25, 20, "+", evAdjustActiveTemp);
+		tddActiveInc = new TextButton(125, TOOL_DROPDOWN_WIDTH-50, 20, "+", evAdjustActiveTemp);
 		tdd->AddField(tddActiveInc);
-		tddActiveDec = new TextButton(125, TOOL_DROPDOWN_WIDTH-50, 20, "-", evAdjustActiveTemp);
+		tddActiveDec = new TextButton(125, 25, 20, "-", evAdjustActiveTemp);
 		tdd->AddField(tddActiveDec);
 
 		tddLabelStandby = new TextField(175, 15, TOOL_DROPDOWN_WIDTH-30, TextAlignment::Left, strings->standby);
@@ -306,16 +334,51 @@ namespace UI
 		tddStandbyTemperature = new IntegerButton(205, 50, TOOL_DROPDOWN_WIDTH-100);
 		tddStandbyTemperature->SetEvent(evAdjustStandbyTemp, 0);
 		tdd->AddField(tddStandbyTemperature);
-		tddStandbyInc = new TextButton(205, 25, 20, "+", evAdjustStandbyTemp);
+		tddStandbyInc = new TextButton(205, TOOL_DROPDOWN_WIDTH-50, 20, "+", evAdjustStandbyTemp);
 		tdd->AddField(tddStandbyInc);
-		tddStandbyDec = new TextButton(205, TOOL_DROPDOWN_WIDTH-50, 20, "-", evAdjustStandbyTemp);
+		tddStandbyDec = new TextButton(205, 25, 20, "-", evAdjustStandbyTemp);
 		tdd->AddField(tddStandbyDec);
 
 		// Add a background Color
-		nozzleBarBg = new StaticToolBar(0, 0, DISPLAY_X, 40);
-		mgr.AddField(nozzleBarBg);
+		toolBarBg = new StaticToolBar(0, 0, DISPLAY_X, 40);
+		mgr.AddField(toolBarBg);
 	}
 
+
+	// Create Menubar + Tab's
+	void CreateMenuBar(const ColourScheme& colours) {
+		DisplayField::SetDefaultColours(colours.menuBarFontColor, colours.menuBarBackColor);
+
+		// Create menu button's
+		for (uint8_t i=0; i<MaxMenuEntrys; i++)
+		{
+			menuEntrys[i] = new IconButton(i*50+50, 4, 40, 40,menuIcons[i], evSelectTab, i);;
+			mgr.AddField(menuEntrys[i]);
+
+			tabs[i] = new DisplayGroup(50, 40, DISPLAY_X-50, DISPLAY_Y-40);
+			tabs[i]->SetColors(colours.mainFontColor, colours.mainBackColor);
+			tabs[i]->Show(false);
+
+			StaticTextField *t = new StaticTextField(i*100, 100, 300, TextAlignment::Centre, "test!");
+			tabs[i]->AddField(t);
+
+			TextButton *b = new TextButton(50, 50, 100, "Button-Test", evSelectTab, 0);
+			tabs[i]->AddField(b);
+
+			mgr.AddField(tabs[i]);
+		}
+
+		tabs[4]->Show(true);
+
+
+
+		// Add a background Color
+		menuBarBg = new StaticToolBar(40, 0, 50, DISPLAY_Y);
+		mgr.AddField(menuBarBg);
+	}
+
+
+	// Create Main
 	void CreateMainWindow(uint32_t language, const ColourScheme& colours, uint32_t p_infoTimeout)
 	{
 		// Set up default colours and margins
@@ -328,6 +391,7 @@ namespace UI
 		SingleButton::SetIconMargin(iconButtonMargin);
 
 		CreateToolBar(colours);
+		CreateMenuBar(colours);
 	}
 }
 

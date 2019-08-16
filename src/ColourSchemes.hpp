@@ -86,9 +86,24 @@ struct ColourScheme
 	Colour stopButtonTextColour;
 	Colour stopButtonBackColour;
 
+
+
+
+	/**** Toolbar ****/
 	Colour toolBarBackColor;
 	Colour toolBarFontColor;
 	Colour toolBarActiveColor;
+
+
+	/*** MenuBar ****/
+	Colour menuBarBackColor;
+	Colour menuBarFontColor;
+	Colour menuBarActiveColor;
+
+
+	/**** Main Section ****/
+	Colour mainBackColor;
+	Colour mainFontColor;
 };
 
 extern const ColourScheme colourSchemes[];

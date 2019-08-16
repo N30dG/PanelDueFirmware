@@ -37,8 +37,11 @@ const PixelNumber textButtonMargin = 1;
 const PixelNumber iconButtonMargin = 2;
 const uint8_t toolbarDropdownWidth = 110;
 
+const uint8_t MaxMenuEntrys = 5;
+
 #define TOOL_DROPDOWN_WIDTH 180
 #define TOOL_DROPDOWN_HEIGHT 250
+
 
 
 #endif /* SRC_USERINTERFACECONSTANTS_HPP_ */
