@@ -34,7 +34,7 @@ static unsigned int numHeaters = 0;
 
 /**** ToolBar ****/
 const Icon toolIcons[MaxHeaters] = { IconBed, IconNozzle1, IconNozzle2, IconNozzle3, IconNozzle4, IconNozzle5, IconNozzle6 };
-static DisplayField *toolBarBg;
+static ColorField *toolBarBg;
 static IconFloatButton* tools[MaxHeaters];
 
 static PopupWindow* tdd;
@@ -53,7 +53,7 @@ static TextButton *tddStandbyInc, *tddStandbyDec;
 
 /**** MenuBar ****/
 const Icon menuIcons[MaxMenuEntrys] = { IconMachineControl, IconConsol, IconCurrentJob, IconFileManagement, IconSettings };
-static DisplayField *menuBarBg;
+static ColorField *menuBarBg;
 static IconButton *menuEntrys[MaxMenuEntrys];
 static DisplayGroup *tabs[MaxMenuEntrys];
 
@@ -296,7 +296,14 @@ namespace UI
 	}
 
 
-	// Create Toolbar (Nozzle-Bar)
+	// Create Machine Control Display Group
+	void CreateMachineControl()
+	{
+
+	}
+
+
+	// Create Toolbar (Heater-Bar)
 	void CreateToolBar(const ColourScheme& colours) {
 		DisplayField::SetDefaultColours(colours.toolBarFontColor, colours.toolBarBackColor);
 
@@ -340,7 +347,7 @@ namespace UI
 		tdd->AddField(tddStandbyDec);
 
 		// Add a background Color
-		toolBarBg = new StaticToolBar(0, 0, DISPLAY_X, 40);
+		toolBarBg = new ColorField(0, 0, DISPLAY_X, 40);
 		mgr.AddField(toolBarBg);
 	}
 
@@ -373,7 +380,7 @@ namespace UI
 
 
 		// Add a background Color
-		menuBarBg = new StaticToolBar(40, 0, 50, DISPLAY_Y);
+		menuBarBg = new ColorField(40, 0, 50, DISPLAY_Y);
 		mgr.AddField(menuBarBg);
 	}
 
@@ -382,7 +389,7 @@ namespace UI
 	void CreateMainWindow(uint32_t language, const ColourScheme& colours, uint32_t p_infoTimeout)
 	{
 		// Set up default colours and margins
-		mgr.Init(colours.defaultBackColour);
+		mgr.Init(colours.mainBackColor);
 		DisplayField::SetDefaultFont(DEFAULT_FONT);
 		ButtonWithText::SetFont(DEFAULT_FONT);
 		IconFloatButton::SetFont(glcd22x32);

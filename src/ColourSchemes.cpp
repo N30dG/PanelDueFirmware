@@ -15,7 +15,7 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 {
 	// Light colour schema. As this one comes first, it is the default.
 	{
-
+			.index = 0,
 	},
 	
 	// Dark colour scheme #1
@@ -29,49 +29,6 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 
 	{
 		.index = 2,
-		.pal = IconPaletteDark,
-
-		.titleBarTextColour = white,
-		.titleBarBackColour = midGrey,
-		.labelTextColour = white,
-		.infoTextColour = white,
-		.infoBackColour = veryDarkGrey,
-		.defaultBackColour = UTFT::fromRGB(30, 30, 30),
-		.activeBackColour = red,
-		.standbyBackColour = yellow,
-		.tuningBackColour = darkGrey,
-		.errorTextColour = white,
-		.errorBackColour = veryDarkGrey,
-
-		.popupBorderColour = darkGrey,
-		.popupBackColour = darkGrey,
-		.popupTextColour = white,
-		.popupButtonTextColour = white,
-		.popupButtonBackColour = veryDarkGrey,
-		.popupInfoTextColour = white,
-		.popupInfoBackColour = darkGrey,
-
-		.alertPopupBackColour = darkGrey,
-		.alertPopupTextColour = white,
-
-		.buttonTextColour = white,
-		.buttonPressedTextColour = white,
-		.buttonTextBackColour = midGrey,
-		.buttonImageBackColour = grey,
-		.buttonGradColour = 0,	//UTFT::fromRGB(8, 4, 8),
-		.buttonPressedBackColour = grey,
-		.buttonPressedGradColour = 0,	//UTFT::fromRGB(8, 8, 8),
-		.buttonBorderColour = midGrey,
-		.homedButtonBackColour = midGrey,
-		.notHomedButtonBackColour = orange,
-		.pauseButtonBackColour = darkOrange,
-		.resumeButtonBackColour = darkYellow,
-		.resetButtonBackColour = darkRed,
-
-		.progressBarColour = midGrey,
-		.progressBarBackColour = veryDarkGrey,
-		.stopButtonTextColour = white,
-		.stopButtonBackColour = red,
 
 
 		/**** Toolbar ****/
@@ -87,7 +44,7 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 
 		/**** Main Section ****/
 		.mainBackColor = UTFT::fromRGB(30, 30, 30),
-		.mainFontColor = UTFT::fromRGB(255, 255, 255)
+		.mainFontColor = UTFT::fromRGB(255, 255, 255),
 	}
 };
 

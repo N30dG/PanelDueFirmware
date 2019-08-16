@@ -640,11 +640,11 @@ public:
 	PixelNumber GetHeight() const override { return height; }
 };
 
-class StaticToolBar: public DisplayField {
+class ColorField: public DisplayField {
 	PixelNumber height;
 
 public:
-	StaticToolBar(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph) : DisplayField(py, px, pw), height(ph) {}
+	ColorField(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph) : DisplayField(py, px, pw), height(ph) {}
 
 	PixelNumber GetHeight() const override { return height; }
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;

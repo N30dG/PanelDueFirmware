@@ -1074,7 +1074,9 @@ void StaticImageField::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffs
 	}
 }
 
-void StaticToolBar::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset)
+
+/**** Color Field ****/
+void ColorField::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset)
 {
 	if (full)
 	{
