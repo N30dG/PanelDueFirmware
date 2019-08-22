@@ -58,6 +58,10 @@ struct ColourScheme
 	/**** Main Section ****/
 	Colour mainBackColor;
 	Colour mainFontColor;
+	Colour mainPanelColor;
+	Colour mainDarkButtonColor;
+	Colour mainActiveColor;
+	Colour mainWarningColor;
 };
 
 extern const ColourScheme colourSchemes[];

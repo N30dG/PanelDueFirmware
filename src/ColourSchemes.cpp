@@ -37,7 +37,7 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 		.toolBarActiveColor = UTFT::fromRGB(33, 150, 243),
 
 		/**** Menubar ****/
-		.menuBarBackColor = UTFT::fromRGB(66, 66, 66),
+		.menuBarBackColor = UTFT::fromRGB(58, 58, 58),
 		.menuBarFontColor = UTFT::fromRGB(255, 255, 255),
 		.menuBarActiveColor = UTFT::fromRGB(33, 150, 255),
 
@@ -45,6 +45,10 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 		/**** Main Section ****/
 		.mainBackColor = UTFT::fromRGB(30, 30, 30),
 		.mainFontColor = UTFT::fromRGB(255, 255, 255),
+		.mainPanelColor = UTFT::fromRGB(81, 81, 81),
+		.mainDarkButtonColor = UTFT::fromRGB(58, 58, 58),
+		.mainActiveColor = UTFT::fromRGB(33, 150, 243),
+		.mainWarningColor = UTFT::fromRGB(251, 140, 0),
 	}
 };
 

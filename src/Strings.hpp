@@ -26,91 +26,97 @@ struct StringTable
 	CSTRING languageName;
 
 	// Main page strings
-	CSTRING control;
-	CSTRING print;
-	CSTRING console;
-	CSTRING setup;
-	CSTRING current;
+	//CSTRING control;
+	//CSTRING print;
+	//CSTRING console;
+	//CSTRING setup;
+	//CSTRING current;
 	CSTRING active;
 	CSTRING standby;
-	CSTRING move;
-	CSTRING extrusion;
-	CSTRING macro;
-	CSTRING stop;
-
-	// Print page
-	CSTRING extruderPercent;
-	CSTRING speed;
-	CSTRING fan;
-	CSTRING timeRemaining;
-	CSTRING file;
-	CSTRING filament;
-	CSTRING layer;
-	CSTRING notAvailable;
-	CSTRING pause;
-	CSTRING babystep;
-	CSTRING resume;
-	CSTRING cancel;
-	CSTRING set;
-
-	// Setup page
-	CSTRING volume;
-	CSTRING calibrateTouch;
-	CSTRING mirrorDisplay;
-	CSTRING invertDisplay;
-	CSTRING theme;
-	CSTRING brightnessDown;
-	CSTRING brightnessUp;
-	CSTRING saveSettings;
-	CSTRING clearSettings;
-	CSTRING saveAndRestart;
-	CSTRING infoTimeout;
-
-	// Misc
-	CSTRING confirmFactoryReset;
-	CSTRING confirmFileDelete;
-	CSTRING areYouSure;
-	CSTRING touchTheSpot;
-	CSTRING moveHead;
-	CSTRING extrusionAmount;
-	CSTRING extrusionSpeed;
+	CSTRING tool;
+	CSTRING position;
 	CSTRING extrude;
 	CSTRING retract;
-	CSTRING babyStepping;
-	CSTRING currentZoffset;
-	CSTRING message;
-	CSTRING messages;
-	CSTRING firmwareVersion;
-	CSTRING response;
+	CSTRING mm;
+	CSTRING mm2;
+	//CSTRING move;
+	//CSTRING extrusion;
+	//CSTRING macro;
+	//CSTRING stop;
+
+	// Print page
+	//CSTRING extruderPercent;
+	//CSTRING speed;
+	//CSTRING fan;
+	//CSTRING timeRemaining;
+	//CSTRING file;
+	//CSTRING filament;
+	//CSTRING layer;
+	//CSTRING notAvailable;
+	//CSTRING pause;
+	//CSTRING babystep;
+	//CSTRING resume;
+	//CSTRING cancel;
+	//CSTRING set;
+
+	// Setup page
+	//CSTRING volume;
+	//CSTRING calibrateTouch;
+	//CSTRING mirrorDisplay;
+	//CSTRING invertDisplay;
+	//CSTRING theme;
+	//CSTRING brightnessDown;
+	//CSTRING brightnessUp;
+	//CSTRING saveSettings;
+	//CSTRING clearSettings;
+	//CSTRING saveAndRestart;
+	//CSTRING infoTimeout;
+
+	// Misc
+	//CSTRING confirmFactoryReset;
+	//CSTRING confirmFileDelete;
+	//CSTRING areYouSure;
+	//CSTRING touchTheSpot;
+	//CSTRING moveHead;
+	//CSTRING extrusionAmount;
+	//CSTRING extrusionSpeed;
+	//CSTRING extrude;
+	//CSTRING retract;
+	//CSTRING babyStepping;
+	//CSTRING currentZoffset;
+	//CSTRING message;
+	//CSTRING messages;
+	//CSTRING firmwareVersion;
+	//CSTRING response;
 	CSTRING status;
 
 	// File popup
-	CSTRING filesOnCard;
-	CSTRING macros;
-	CSTRING error;
-	CSTRING accessingSdCard;
-	CSTRING fileName;
-	CSTRING fileSize;
-	CSTRING layerHeight;
-	CSTRING objectHeight;
-	CSTRING filamentNeeded;
-	CSTRING generatedBy;
-	CSTRING lastModified;
-	CSTRING estimatedPrintTime;
-	CSTRING simulatedPrintTime;
-	CSTRING simulate;
+	//CSTRING filesOnCard;
+	//CSTRING macros;
+	//CSTRING error;
+	//CSTRING accessingSdCard;
+	//CSTRING fileName;
+	//CSTRING fileSize;
+	//CSTRING layerHeight;
+	//CSTRING objectHeight;
+	//CSTRING filamentNeeded;
+	//CSTRING generatedBy;
+	//CSTRING lastModified;
+	//CSTRING estimatedPrintTime;
+	//CSTRING simulatedPrintTime;
+	//CSTRING simulate;
 
 	// Printer status strings
-	CSTRING statusValues[NumStatusStrings];
+	//CSTRING statusValues[NumStatusStrings];
 
 	// Heater status values
 	CSTRING heaterStatus[5];
 
 	// Colour theme names
-	CSTRING colourSchemeNames[NumColourSchemes];
+	//CSTRING colourSchemeNames[NumColourSchemes];
 
 	// Display dimmer types
-	CSTRING displayDimmingNames[(unsigned int)DisplayDimmerType::NumTypes];
+	//CSTRING displayDimmingNames[(unsigned int)DisplayDimmerType::NumTypes];
 };
 
 const StringTable LanguageTables[NumLanguages] =
@@ -121,82 +127,88 @@ const StringTable LanguageTables[NumLanguages] =
 		"en",
 
 		// Main page strings
-		"Control",
-		"Print",
-		"Console",
-		"Setup",
-		"Current" THIN_SPACE DEGREE_SYMBOL "C",
+		//"Control",
+		//"Print",
+		//"Console",
+		//"Setup",
+		//"Current" THIN_SPACE DEGREE_SYMBOL "C",
 		"Active" THIN_SPACE DEGREE_SYMBOL "C",
 		"Standby" THIN_SPACE DEGREE_SYMBOL "C",
-		"Move",
-		"Extrusion",
-		"Macro",
-		"STOP",
-
-		// Print page
-		"Extruder" THIN_SPACE "%",
-		"Speed ",							// note space at end
-		"Fan ",								// note space at end
-		"Time left: ",
-		"file ",							// note space at end
-		", filament ",						// note space at end
-		", layer ",							// note space at end
-		"n/a",
-		"Pause",
-		"Baby step",
-		"Resume",
-		"Cancel",
-		"Set",
-
-		// Setup page
-		"Volume ",							// note space at end
-		"Calibrate touch",
-		"Mirror display",
-		"Invert display",
-		"Theme",
-		"Brightness -",
-		"Brightness +",
-		"Save settings",
-		"Clear settings",
-		"Save & Restart",
-		"Info timeout ",					// note space at end
-
-		// Misc
-		"Confirm factory reset",
-		"Confirm file delete",
-		"Are you sure?",
-		"Touch the spot",
-		"Move head",
-		"Extrusion amount (mm)",
-		"Speed (mm/s)",
+		"Tool",
+		"Position",
 		"Extrude",
 		"Retract",
-		"Baby stepping",
-		"Current Z offset: ",
-		"Message",
-		"Messages",
-		"Panel Due firmware version ",	// note space at end
-		"Response",
+		"mm",
+		"mm/2",
+		//"Move",
+		//"Extrusion",
+		//"Macro",
+		//"STOP",
+
+		// Print page
+		//"Extruder" THIN_SPACE "%",
+		//"Speed ",							// note space at end
+		//"Fan ",								// note space at end
+		//"Time left: ",
+		//"file ",							// note space at end
+		//", filament ",						// note space at end
+		//", layer ",							// note space at end
+		//"n/a",
+		//"Pause",
+		//"Baby step",
+		//"Resume",
+		//"Cancel",
+		//"Set",
+
+		// Setup page
+		//"Volume ",							// note space at end
+		//"Calibrate touch",
+		//"Mirror display",
+		//"Invert display",
+		//"Theme",
+		//"Brightness -",
+		//"Brightness +",
+		//"Save settings",
+		//"Clear settings",
+		//"Save & Restart",
+		//"Info timeout ",					// note space at end
+
+		// Misc
+		//"Confirm factory reset",
+		//"Confirm file delete",
+		//"Are you sure?",
+		//"Touch the spot",
+		//"Move head",
+		//"Extrusion amount (mm)",
+		//"Speed (mm/s)",
+		//"Extrude",
+		//"Retract",
+		//"Baby stepping",
+		//"Current Z offset: ",
+		//"Message",
+		//"Messages",
+		//"Panel Due firmware version ",	// note space at end
+		//"Response",
 		"Status",
 
 		// File popup
-		"Files on card ",				// note the space on the end
-		"Macros",
-		"Error ",						// note the space at the end
-		" accessing SD card",			// note the space at the start
-		"Filename: ",
-		"Size: ",
-		"Layer height: ",
-		"Object height: ",
-		"Filament needed: ",
-		"Sliced by: ",
-		"Last modified: ",
-		"Estimated print time: ",
-		"Simulated print time: ",
-		"Simulate",
+		//"Files on card ",				// note the space on the end
+		//"Macros",
+		//"Error ",						// note the space at the end
+		//" accessing SD card",			// note the space at the start
+		//"Filename: ",
+		//"Size: ",
+		//"Layer height: ",
+		//"Object height: ",
+		//"Filament needed: ",
+		//"Sliced by: ",
+		//"Last modified: ",
+		//"Estimated print time: ",
+		//"Simulated print time: ",
+		//"Simulate",
 
 		// Printer status strings
-		{
+		/* {
 			"Connecting",
 			"Idle",
 			"Printing",
@@ -210,7 +222,7 @@ const StringTable LanguageTables[NumLanguages] =
 			"Changing tool",
 			"Simulating",
 			"Standby"
-		},
+		}, */
 
 		// Heater status strings
 		{
@@ -222,20 +234,21 @@ const StringTable LanguageTables[NumLanguages] =
 		},
 
 		// Theme names
-		{
+		/*{
 			"Light theme",
 			"Dark theme 1",
 			"Dark theme 2"
-		},
+		},*/
 
 		// Display dimming types
-		{
+		/*{
 			"Never dim",
 			"Dim if idle",
 			"Always dim"
-		}
- 	},
+		}*/
+ 	}
 
+	/*
 	// German
 	{
 		// ISO-639.1 language code
@@ -718,7 +731,7 @@ const StringTable LanguageTables[NumLanguages] =
 			"Idle Dim",
 			"VÅ¾dy Dim"
 		}
-	}
+	}*/
 };
 
 #endif /* SRC_STRINGS_HPP_ */

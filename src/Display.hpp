@@ -114,6 +114,7 @@ public:
 	PixelNumber GetMaxX() const { return x + width - 1; }
 	PixelNumber GetMinY() const { return y; }
 	PixelNumber GetMaxY() const { return y + GetHeight() - 1; }
+	PixelNumber GetWidth() const { return width; }
 
 	void SetPositionAndWidth(PixelNumber newX, PixelNumber newWidth);
 
@@ -133,6 +134,26 @@ public:
 	static PixelNumber GetTextWidth(const char* array s, PixelNumber maxWidth, size_t maxChars);	// find out how much width we need to print this text
 };
 
+class DisplayGroup : public DisplayField
+{
+	friend class MainWindow;
+
+private:
+	PixelNumber height;
+	DisplayField * null root;
+
+protected:
+	PixelNumber GetHeight() const override { return height; }
+	bool ObscuredByPopup(const DisplayField *p) const;
+	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
+	void CheckEvent(PixelNumber x, PixelNumber y, int& bestError, ButtonPress& best) override;
+
+public:
+	DisplayGroup(PixelNumber X, PixelNumber Y, PixelNumber w, PixelNumber h);
+	void AddField(DisplayField *p);
+	void Show(bool v);
+};
+
 class PopupWindow;
 
 class Window
@@ -140,6 +161,7 @@ class Window
 protected:
 	DisplayField * null root;
 	PopupWindow * null next;
+	DisplayGroup * null group;
 	Colour backgroundColour;
 	
 public:
@@ -192,24 +214,6 @@ public:
 	void Refresh(bool full) override;
 	void SetPos(PixelNumber px, PixelNumber py) { xPos = px; yPos = py; }
 	bool Contains(PixelNumber xmin, PixelNumber ymin, PixelNumber xmax, PixelNumber ymax) const override;
-};
-
-class DisplayGroup : public DisplayField
-{
-private:
-	PixelNumber height;
-	DisplayField * null root;
-
-protected:
-	PixelNumber GetHeight() const override { return height; }
-	bool ObscuredByPopup(const DisplayField *p) const;
-	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
-	void CheckEvent(PixelNumber x, PixelNumber y, int& bestError, ButtonPress& best) override;
-
-public:
-	DisplayGroup(PixelNumber X, PixelNumber Y, PixelNumber w, PixelNumber h);
-	void AddField(DisplayField *p);
-	void Show(bool v);
 };
 
 class ColourGradientField : public DisplayField
@@ -353,7 +357,6 @@ public:
 class ButtonBase : public DisplayField
 {
 protected:
-	Colour activeFcolor, activeBcolor;
 	event_t evt;								// event number that is triggered by touching this field
 	bool pressed;								// putting this here instead of in SingleButton saves 4 byes per button
 
@@ -407,16 +410,16 @@ public:
 
 class ButtonWithText : public SingleButton
 {
-	static LcdFont font;
-	
 protected:
+	static LcdFont font;
+	PixelNumber height;
 	PixelNumber GetHeight() const override;
 
 	virtual size_t PrintText(size_t offset) const = 0;
 
 public:
-	ButtonWithText(PixelNumber py, PixelNumber px, PixelNumber pw)
-		: SingleButton(py, px, pw) {}
+	ButtonWithText(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph)
+		: SingleButton(py, px, pw), height(ph) {}
 
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
 	
@@ -487,11 +490,12 @@ protected:
 	size_t PrintText(size_t offset) const override;
 
 public:
-	TextButton(PixelNumber py, PixelNumber px, PixelNumber pw, const char * array null pt, event_t e, int param = 0);
-	TextButton(PixelNumber py, PixelNumber px, PixelNumber pw, const char * array null pt, event_t e, const char * array param);
+	TextButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, const char * array null pt, event_t e, int param = 0);
+	TextButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, const char * array null pt, event_t e, const char * array param);
 
 	// Hide any text buttons with null text
 	bool IsVisible() const override { return text != nullptr && DisplayField::IsVisible(); }
+	void SetPositionAndHeight(PixelNumber newY, PixelNumber newHeight);
 
 	void SetText(const char* array null pt)
 	{
@@ -507,12 +511,13 @@ class IconButton : public SingleButton
 	PixelNumber height;
 	
 protected:
-	PixelNumber GetHeight() const override { return GetIconHeight(icon) + 2 * iconMargin + 2; }
+	PixelNumber GetHeight() const override { return height; }
 
 public:
 	IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, event_t e, int param = 0);
 	IconButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, event_t e, const char * array param);
 
+	void SetPositionAndHeight(PixelNumber newY, PixelNumber newHeight);
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
 
 	void SetColors(Colour fc, Colour bc);
@@ -537,6 +542,7 @@ public:
 	IconFloatButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, Icon ic, float val, event_t e, const char * array param);
 
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
+	void Show(bool v);
 
 	static void SetFont(LcdFont f);
 	void SetValue(float val);
@@ -554,8 +560,8 @@ protected:
 	size_t PrintText(size_t offset) const override;
 
 public:
-	IntegerButton(PixelNumber py, PixelNumber px, PixelNumber pw, const char * array pl = nullptr, const char * array pt = nullptr)
-		: ButtonWithText(py, px, pw), label(pl), units(pt), val(0) {}
+	IntegerButton(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, const char * array pl = nullptr, const char * array pt = nullptr)
+		: ButtonWithText(py, px, pw, ph), label(pl), units(pt), val(0) {}
 
 	int GetValue() const { return val; }
 
@@ -584,7 +590,7 @@ protected:
 
 public:
 	FloatButton(PixelNumber py, PixelNumber px, PixelNumber pw, uint8_t pd, const char * array pt = nullptr)
-		: ButtonWithText(py, px, pw), units(pt), val(0.0), numDecimals(pd) {}
+		: ButtonWithText(py, px, pw, UTFT::GetFontHeight(font)), units(pt), val(0.0), numDecimals(pd) {}
 
 	float GetValue() const { return val; }
 

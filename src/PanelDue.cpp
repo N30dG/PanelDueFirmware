@@ -803,7 +803,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			float fval;
 			if (GetFloat(data, fval))
 			{
-				//UI::UpdateAxisPosition(indices[0], fval);
+				UI::UpdateAxisPosition(indices[0], fval);
 			}
 		}
 		break;
@@ -855,7 +855,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 				if (isHomed != axisHomed[indices[0]])
 				{
 					axisHomed[indices[0]] = isHomed;
-					//UI::UpdateHomedStatus(indices[0], isHomed);
+					UI::UpdateHomedStatus(indices[0], isHomed);
 					bool allHomed = true;
 					for (size_t i = 0; i < numAxes; ++i)
 					{
@@ -868,7 +868,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 					if (allHomed != allAxesHomed)
 					{
 						allAxesHomed = allHomed;
-						//UI::UpdateHomedStatus(-1, allHomed);
+						UI::UpdateHomedStatus(-1, allHomed);
 					}
 				}
 			}
@@ -1003,7 +1003,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 		if (status != PrinterStatus::configuring && status != PrinterStatus::connecting)
 		{
 			isDelta = (strcasecmp(data, "delta") == 0);
-			//UI::UpdateGeometry(numAxes, isDelta);
+			UI::UpdateGeometry(numAxes, isDelta);
 		}
 		break;
 
@@ -1012,7 +1012,7 @@ void ProcessReceivedValue(const char id[], const char data[], const size_t indic
 			uint32_t n = MIN_AXES;
 			GetUnsignedInteger(data, n);
 			numAxes = constrain<unsigned int>(n, MIN_AXES, MaxAxes);
-			//UI::UpdateGeometry(numAxes, isDelta);
+			UI::UpdateGeometry(numAxes, isDelta);
 		}
 		break;
 
