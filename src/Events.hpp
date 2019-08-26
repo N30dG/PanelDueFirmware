@@ -14,8 +14,8 @@ enum Event : uint8_t
 {
 	evNull = 0,						// value must match nullEvent declared in Display.hpp
 
-	// Page selection
-	evSelectTab,
+	// UI functions
+	evDropDown, evSelectTab,
 
 	// Heater control
 	evSelectHead, evSwitchHeadStatus,
@@ -57,9 +57,8 @@ enum Event : uint8_t
 	evKey, evShift, evBackspace, evSendKeyboardCommand, evUp, evDown,
 
 	evAdjustLanguage, evSetLanguage,
-	evAdjustColours, evSetColours,
-	evBrighter, evDimmer,
-	evSetDimmingType,
+	evAdjustColours, evSetColors,
+	evSetBrightness, evSetDimmingType,
 
 	evEmergencyStop,
 

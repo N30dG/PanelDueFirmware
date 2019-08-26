@@ -130,7 +130,7 @@ struct FlashData
 {
 	// The magic value should be changed whenever the layout of the NVRAM changes
 	// We now use a different magic value for each display size, to force the "touch the spot" screen to be displayed when you change the display size
-	static const uint32_t magicVal = 0x3AB62A20 + DISPLAY_TYPE;
+	static const uint32_t magicVal = 0x3AB62A21 + DISPLAY_TYPE;
 	static const uint32_t muggleVal = 0xFFFFFFFF;
 
 	uint32_t magic;
@@ -234,7 +234,7 @@ bool FlashData::IsValid() const
 		&& touchVolume <= Buzzer::MaxVolume
 		&& brightness >= Buzzer::MinBrightness
 		&& brightness <= Buzzer::MaxBrightness
-		&& colourScheme < NumColourSchemes
+		&& colourScheme < NumColorSchemes
 		&& displayDimmerType < DisplayDimmerType::NumTypes;
 }
 
@@ -268,7 +268,7 @@ void FlashData::SetDefaults()
 	touchVolume = Buzzer::DefaultVolume;
 	brightness = Buzzer::DefaultBrightness;
 	language = 0;
-	colourScheme = 0;
+	colourScheme = 1;
 	displayDimmerType = DisplayDimmerType::always;
 	infoTimeout = DefaultInfoTimeout;
 	magic = magicVal;
@@ -441,7 +441,7 @@ void DoTouchCalib(PixelNumber x, PixelNumber y, PixelNumber altX, PixelNumber al
 void CalibrateTouch()
 {
 	DisplayField *oldRoot = mgr.GetRoot();
-	//mgr.SetRoot(touchCalibInstruction);
+	mgr.SetRoot(touchCalibInstruction);
 	mgr.Refresh(true);
 
 	touch.init(DisplayX, DisplayY, DefaultTouchOrientAdjust);				// initialize the driver and clear any existing calibration
@@ -537,11 +537,15 @@ void SetInfoTimeout(uint8_t newInfoTimeout)
 	nvData.infoTimeout = newInfoTimeout;
 }
 
-bool SetColourScheme(uint8_t newColours)
+bool SetColorScheme(uint8_t newColors)
 {
-	const bool ret = (newColours != nvData.colourScheme);
-	nvData.colourScheme = newColours;
+	const bool ret = (newColors != nvData.colourScheme);
+	nvData.colourScheme = newColors;
 	return ret;
+}
+uint8_t GetColorScheme()
+{
+	return nvData.colourScheme;
 }
 
 // Set the language, returning true if it has changed
@@ -1156,7 +1160,7 @@ void ProcessArrayEnd(const char id[], const size_t indices[])
 // Update those fields that display debug information
 void UpdateDebugInfo()
 {
-	//freeMem->SetValue(GetFreeMemory());
+	UI::UpdateFreeRam(GetFreeMemory());
 }
 
 #if 0

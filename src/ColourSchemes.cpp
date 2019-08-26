@@ -11,24 +11,25 @@
 #include "UserInterfaceConstants.hpp"
 #include "Icons/Icons.hpp"
 
-const ColourScheme colourSchemes[NumColourSchemes] =
+const ColourScheme colourSchemes[NumColorSchemes] =
 {
-	// Light colour schema. As this one comes first, it is the default.
-	{
-			.index = 0,
-	},
-	
 	// Dark colour scheme #1
 
 	{
-		.index = 1,
+		.index = 0,
 
 	},
 
 	// Dark colour scheme #2
 
 	{
-		.index = 2,
+		.index = 1,
+
+		/**** "Are You Sure"-Popup ****/
+		.popupBackColor = UTFT::fromRGB(30, 30, 30),
+		.popupFontColor = UTFT::fromRGB(255, 255, 255),
+		.popupButtonBackColor = UTFT::fromRGB(58, 58, 58),
+		.popupBorderColor = UTFT::fromRGB(255, 255, 255),
 
 
 		/**** Toolbar ****/
@@ -49,6 +50,7 @@ const ColourScheme colourSchemes[NumColourSchemes] =
 		.mainDarkButtonColor = UTFT::fromRGB(58, 58, 58),
 		.mainActiveColor = UTFT::fromRGB(33, 150, 243),
 		.mainWarningColor = UTFT::fromRGB(251, 140, 0),
+		.dropdownBackColor = UTFT::fromRGB(58, 58, 58),
 	}
 };
 

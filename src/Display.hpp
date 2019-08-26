@@ -12,6 +12,8 @@
 #include "ecv.h"
 #include "Hardware/UTFT.hpp"
 #include "DisplaySize.hpp"
+#include "Events.hpp"
+#include "UserInterfaceConstants.hpp"
 
 #ifndef UNUSED
 # define UNUSED(_x)	(void)(_x)
@@ -73,6 +75,7 @@ public:
 class DisplayField
 {
 	friend class DisplayGroup;
+	friend class DropdownList;
 
 protected:
 	PixelNumber y, x;							// Coordinates of top left pixel, counting from the top left corner
@@ -182,6 +185,7 @@ public:
 	bool ObscuredByPopup(const DisplayField *p) const;
 	bool Visible(const DisplayField *p) const;
 	virtual bool Contains(PixelNumber xmin, PixelNumber ymin, PixelNumber xmax, PixelNumber ymax) const = 0;
+	void SetColor(Colour bcolor);
 };
 
 class MainWindow : public Window
@@ -213,6 +217,7 @@ public:
 	PixelNumber Ypos() const override { return yPos; }
 	void Refresh(bool full) override;
 	void SetPos(PixelNumber px, PixelNumber py) { xPos = px; yPos = py; }
+	void SetSize(PixelNumber pw, PixelNumber ph) { width=pw; height = ph; }
 	bool Contains(PixelNumber xmin, PixelNumber ymin, PixelNumber xmax, PixelNumber ymax) const override;
 };
 
@@ -421,7 +426,7 @@ public:
 	ButtonWithText(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph)
 		: SingleButton(py, px, pw), height(ph) {}
 
-	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
+	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
 	
 	static void SetFont(LcdFont f) { font = f; }
 };
@@ -459,7 +464,7 @@ protected:
 public:
 	ButtonRowWithText(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ps, unsigned int nb, event_t e);
 
-	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override final;
+	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
 
 	static void SetFont(LcdFont f) { font = f; }
 };
@@ -508,9 +513,9 @@ public:
 class IconButton : public SingleButton
 {
 	Icon icon;
-	PixelNumber height;
 	
 protected:
+	PixelNumber height;
 	PixelNumber GetHeight() const override { return height; }
 
 public:
@@ -607,6 +612,29 @@ public:
 	}
 };
 
+#define maxItems 6
+#define itemHeight 30
+class DropdownList : public TextButton
+{
+	static PopupWindow* dropdown;
+	static TextButton* items[maxItems];
+
+protected:
+	uint8_t numItems;
+	const char* itemText;
+	event_t event;
+
+
+public:
+	DropdownList(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, uint8_t num, const char* items, event_t evt);
+	void SetDropdown();
+	void setColors(Colour fontColor, Colour buttonBackColor, Colour dropdownBackColor);
+	void selectItem(uint8_t idx);
+	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
+	PopupWindow* getPopup() const { return dropdown; };
+};
+
+
 class ProgressBar : public DisplayField
 {
 	PixelNumber lastNumPixelsSet;
@@ -655,4 +683,6 @@ public:
 	PixelNumber GetHeight() const override { return height; }
 	void Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset) override;
 };
+
+
 #endif /* DISPLAY_H_ */

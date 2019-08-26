@@ -15,6 +15,9 @@
 #include "Events.hpp"
 
 
+extern StaticTextField *touchCalibInstruction;
+
+
 namespace UI
 {
 	extern void ProcessTouch(ButtonPress bp);
@@ -29,6 +32,7 @@ namespace UI
 	extern void UpdateGeometry(unsigned int p_numAxes, bool p_isDelta);
 	extern void UpdateAxisPosition(size_t axis, float fval);
 	extern void UpdateHomedStatus(int axis, bool isHomed);
+	extern void UpdateFreeRam(int mem);
 
 	extern void CreateMainWindow(uint32_t language, const ColourScheme& colours, uint32_t p_infoTimeout);
 }

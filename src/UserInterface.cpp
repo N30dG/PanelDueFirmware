@@ -23,12 +23,29 @@
 
 const StringTable * strings = &LanguageTables[0];
 
+
+/**** Machine Variables ****/
+int heaterStatus[MaxHeaters];
+int activeTemps[MaxHeaters];
+int standbyTemps[MaxHeaters];
+uint16_t extrudeAmount=10, extrudeRate=5*60;
+static unsigned int numAxes = 0;
+static unsigned int numHeaters = 0;
+static bool isDelta = 0;
+uint8_t infoTimeout = DefaultInfoTimeout;
+
+
+/**** UI-state Variables ****/
+event_t eventToConfirm = evNull;
+
+
+/**** Text Values ****/
 static const char* array const axisNames[] = { "X", "Y", "Z", "U", "V", "W" };
 const char* homeCommands[] = { "G28 X", "G28 Y", "G28 Z", "G28 U", "G28 V", "G28 W" };
 static const char* array const moveValues[][9] = {
 		{"-50", "-10", "-1", "-0.1", "X", "+0.1", "+1", "+10", "+50"},
 		{"-50", "-10", "-1", "-0.1", "Y", "+0.1", "+1", "+10", "+50"},
-		{"-25", "-5", "-0.5", "-.05", "Z", "+.05", "+0.5", "+5", "+50"},
+		{"-25", "-5", "-0.5", "-.05", "Z", "+.05", "+0.5", "+5", "+25"},
 		{"-50", "-10", "-1", "-0.1", "U", "+0.1", "+1", "+10", "+50"},
 		{"-50", "-10", "-1", "-0.1", "V", "+0.1", "+1", "+10", "+50"},
 		{"-50", "-10", "-1", "-0.1", "W", "+0.1", "+1", "+10", "+50"}
@@ -42,19 +59,29 @@ static const char* array const moveParams[][9] = {
 		{"-50", "-10", "-1", "-0.1", "0" , "0.1", "1", "10", "50"}
 };
 static const uint16_t array extrudeValues[] = { 50, 25, 10, 5, 1, 0 };
+
 static const uint16_t array ExtrudeRates[] = { 60, 30, 15, 5, 1, 0 };
 
+static const char* baudText =  "9600\n19200\n38400\n57600\n115200";
+static const uint32_t baudValues[] = { 9600, 19200, 38400, 57600, 115200 };
+
+static const char* volumeText = "0\n1\n2\n3\n4\n5";
+
+static const char* timeoutText = "0\n2\n5\n10";
+static const uint8_t timeoutValues[] = { 0, 2, 5, 10 };
+
+static const char* themeText = "Light\nDark";
+
+static const char* languageText = "English";
+
+static const char* brightnessText = "100 %\n80 %\n60 %\n40 %\n20 %\n5 %";
+static const int brightnessValues[] = { 100, 80, 60, 40, 20, 5 };
+
+static const char* dimText = "Never dim\nDim if idle\nAlways dim";
 
 
-/**** Machine Variables ****/
-int heaterStatus[MaxHeaters];
-int activeTemps[MaxHeaters];
-int standbyTemps[MaxHeaters];
-uint16_t extrudeAmount=10, extrudeRate=5*60;
-static unsigned int numAxes = 0;
-static unsigned int numHeaters = 0;
-static bool isDelta = 0;
-
+/**** Calibration Screen ****/
+StaticTextField *touchCalibInstruction;
 
 /**** ToolBar ****/
 const Icon toolIcons[MaxHeaters] = { IconBed, IconNozzle1, IconNozzle2, IconNozzle3, IconNozzle4, IconNozzle5, IconNozzle6 };
@@ -73,6 +100,12 @@ static TextButton *tddActiveInc, *tddActiveDec;
 static TextField* tddLabelStandby;
 static IntegerButton* tddStandbyTemperature;
 static TextButton *tddStandbyInc, *tddStandbyDec;
+
+
+/**** "Are You sure"-Popup ****/
+static PopupWindow *areYouSurePopup;
+static StaticTextField *areYouSureText, *areYouSureQuery;
+static TextButton *areYouSureYes, *areYouSureNo;
 
 
 /**** MenuBar ****/
@@ -95,11 +128,48 @@ static ColorField *mcpMovePanel;
 static IconButton *mcpHomeAll, *mcpCompensate,*mcpHomeAxes[MaxAxes];
 static TextButton *mcpMoveAxes[MaxAxes][numMoveButtons];
 
-//Extrude Panel
+// Extrude Panel
 static ColorField *mcpExtrudePanel;
 static IntegerButton *mcpExtrudeAmount[6], *mcpExtrudeRate[6];
 static TextButton *mcpExtrude, *mcpRetract;
 static StaticTextField *mcpExtrudeAmountLabel, *mcpExtrudeRateLabel;
+
+
+/**** Setup Panel ****/
+// Info Panel
+static ColorField *spInfoPanel;
+static StaticTextField *spInfoLabel, *spVersion, *spVersionLabel, *spRamLabel;
+static IntegerField *spRam;
+
+// General Settings Panel
+static ColorField *spGeneralPanel;
+static StaticTextField *spGeneralLabel, *spBaudLabel, *spVolumeLabel, *spTimeoutLabel;
+static DropdownList *spBaud, *spVolume, *spTimeout;
+static TextButton *spCalTouch, *spFactoryReset;
+
+// Appearance Panel
+static ColorField *spAppearancePanel;
+static StaticTextField *spAppearanceLabel, *spThemeLabel, *spLanguageLabel;
+static DropdownList *spTheme, *spLanguage;
+
+// Display Panel
+static ColorField *spDisplayPanel;
+static StaticTextField *spDisplayLabel, *spBrightnessLabel, *spDimLabel;
+static DropdownList *spBrightness, *spDim;
+static TextButton *spInvert, *spMirror;
+
+
+
+
+
+void PopupAreYouSure(Event ev, const char* text, const char* query = strings->areYouSure)
+{
+	eventToConfirm = ev;
+	areYouSureText->SetValue(text);
+	areYouSureQuery->SetValue(query);
+	mgr.SetPopup(areYouSurePopup, AutoPlace, AutoPlace);
+}
+
 
 
 namespace UI
@@ -125,6 +195,141 @@ namespace UI
 
 					menuEntrys[tab]->SetColors(colours->menuBarActiveColor, colours->menuBarBackColor);
 					tabs[tab]->Show(true);
+				} break;
+
+				case evDropDown:
+				{
+					DelayTouchLong();
+					DropdownList* curDD = (DropdownList*)bp.GetButton();
+					curDD->SetDropdown();
+					mgr.SetPopup(curDD->getPopup());
+				} break;
+
+				case evSetBaudRate:
+				{
+					uint8_t idx = bp.GetIParam();
+					spBaud->selectItem(idx);
+					SetBaudRate(baudValues[idx]);
+
+					mgr.ClearPopup(spBaud->getPopup());
+
+					SaveSettings();
+				} break;
+
+				case evSetVolume:
+				{
+					uint8_t vol = bp.GetIParam();
+					spVolume->selectItem(vol);
+					SetVolume(vol);
+
+					mgr.ClearPopup(spVolume->getPopup());
+					TouchBeep();
+
+					SaveSettings();
+				} break;
+
+				case evAdjustInfoTimeout:
+				{
+					uint8_t idx = bp.GetIParam();
+					spTimeout->selectItem(idx);
+					infoTimeout = timeoutValues[idx];
+					SetInfoTimeout(timeoutValues[idx]);
+
+					mgr.ClearPopup(spTimeout->getPopup());
+
+					SaveSettings();
+
+				} break;
+
+				case evCalTouch:
+				{
+					CalibrateTouch();
+
+					SaveSettings();
+				} break;
+
+				case evFactoryReset:
+				{
+					PopupAreYouSure(ev, strings->confirmFactoryReset);
+				} break;
+
+				case evSetColors:
+				{
+					const uint32_t newColors = bp.GetIParam();
+					if (SetColorScheme(newColors))
+					{
+						SaveSettings();
+						Restart();
+					}
+					else
+					{
+						mgr.ClearPopup(spTheme->getPopup());
+					}
+				} break;
+
+				case evSetLanguage:
+				{
+					const unsigned int newLanguage = bp.GetIParam();
+					if (SetLanguage(newLanguage))
+					{
+						SaveSettings();
+						Restart();
+					}
+
+					mgr.ClearPopup(spLanguage->getPopup());
+				} break;
+
+				case evSetBrightness:
+				{
+					uint8_t idx = bp.GetIParam();
+					SetBrightness(brightnessValues[idx]);
+					spBrightness->selectItem(idx);
+
+					mgr.ClearPopup(spBrightness->getPopup());
+
+					SaveSettings();
+				} break;
+
+				case evSetDimmingType:
+				{
+					uint8_t idx = bp.GetIParam();
+					SetDisplayDimmerType((DisplayDimmerType)idx);
+					spDim->selectItem(idx);
+
+					mgr.ClearPopup(spDim->getPopup());
+
+					SaveSettings();
+				} break;
+
+				case evInvertX:
+				{
+					MirrorDisplay();
+					CalibrateTouch();
+
+					SaveSettings();
+				} break;
+
+				case evInvertY:
+				{
+					InvertDisplay();
+					CalibrateTouch();
+
+					SaveSettings();
+				} break;
+
+				case evYes:
+				{
+					mgr.ClearPopup();
+					if (eventToConfirm == evFactoryReset)
+						FactoryReset();
+
+					eventToConfirm = evNull;
+				} break;
+
+				case evCancel:
+				{
+					mgr.ClearPopup();
+					eventToConfirm = evNull;
 				} break;
 
 				case evSelectHead:
@@ -542,9 +747,12 @@ namespace UI
 				homeButton->SetColors(colours->mainFontColor, (isHomed) ? colours->mainActiveColor : colours->mainWarningColor);
 		}
 	}
+	void UpdateFreeRam(int mem) {
+		spRam->SetValue(mem);
+	}
 
 
-	//
+	// Create some special formations of UI-Elements
 	void CreateStringButtonRow(DisplayGroup *pf, PixelNumber y, PixelNumber x, PixelNumber width, PixelNumber height, TextButton *buttons[], size_t numButtons, const char* array const text[], const char* array const params[], Event evt)
 	{
 		PixelNumber btnWidth = width/numButtons;
@@ -571,8 +779,191 @@ namespace UI
 	}
 
 
+	//Create "Are you sure?"-Popup
+	void CreateAreYouSurePopup()
+	{
+		const LcdFont fontText = glcd20x30;
+		const LcdFont fontQuery = glcd19x21;
+
+		areYouSurePopup = new PopupWindow(areYouSurePopupHeight, areYouSurePopupWidth, colours->popupBackColor, colours->popupBorderColor);
+		DisplayField::SetDefaultColours(colours->popupFontColor, colours->popupBackColor);
+
+		areYouSureText = new StaticTextField(popupMargin, popupMargin, areYouSurePopupWidth - 2 * popupMargin, TextAlignment::Centre, nullptr);
+		areYouSureText->setFont(fontText);
+		areYouSurePopup->AddField(areYouSureText);
+
+		areYouSureQuery = new StaticTextField(popupMargin + 50, popupMargin, areYouSurePopupWidth - 2 * popupMargin, TextAlignment::Centre, nullptr);
+		areYouSureQuery->setFont(fontQuery);
+		areYouSurePopup->AddField(areYouSureQuery);
+
+
+		DisplayField::SetDefaultColours(colours->popupFontColor, colours->popupButtonBackColor);
+
+		areYouSureYes = new TextButton(areYouSurePopupHeight-areYouSureButtonHeight-mainSectionMargin, 100, areYouSureButtonWidth, areYouSureButtonHeight, "Yes", evYes);
+		areYouSurePopup->AddField(areYouSureYes);
+
+		areYouSureNo = new TextButton(areYouSurePopupHeight-areYouSureButtonHeight-mainSectionMargin, areYouSurePopupWidth-100-areYouSureButtonWidth, areYouSureButtonWidth, areYouSureButtonHeight, "No", evCancel);
+		areYouSurePopup->AddField(areYouSureNo);
+	}
+
+
+	// Create Setup Display Group
+	void CreateSetupPanel(uint32_t language)
+	{
+		const LcdFont fontLabel = glcd20x30;
+		const LcdFont fontText = glcd19x21;
+
+
+		// Info Panel
+		const uint8_t fontHeightDiff = (UTFT::GetFontHeight(fontLabel)-UTFT::GetFontHeight(fontText))/2;
+
+		DisplayField::SetDefaultColours(colours->mainFontColor, colours->mainPanelColor);
+		spInfoLabel = new StaticTextField(spInfoY+mainSectionMargin, spInfoX+mainSectionMargin, spInfoWidth-mainSectionMargin*2, TextAlignment::Centre, strings->info);
+		spInfoLabel->setFont(fontLabel);
+		tabs[4]->AddField(spInfoLabel);
+
+		PixelNumber infoTextWidth = (spInfoWidth - mainSectionMargin*2) / 2;
+		spVersionLabel = new StaticTextField(spInfoY+pRow1Label, spInfoX+mainSectionMargin, infoTextWidth,TextAlignment::Left, strings->version);
+		spVersionLabel->setFont(fontText);
+		tabs[4]->AddField(spVersionLabel);
+		spVersion = new StaticTextField(spInfoY+pRow1Label, spInfoX+mainSectionMargin+infoTextWidth+50, infoTextWidth-50, TextAlignment::Left, VERSION_TEXT);
+		spVersion->setFont(fontText);
+		tabs[4]->AddField(spVersion);
+
+		spRamLabel = new StaticTextField(spInfoY+pRow1Item+fontHeightDiff, spInfoX+mainSectionMargin, infoTextWidth, TextAlignment::Left, strings->freeRam);
+		spRamLabel->setFont(fontText);
+		tabs[4]->AddField(spRamLabel);
+		spRam = new IntegerField(spInfoY+pRow1Item+fontHeightDiff, spInfoX+mainSectionMargin+infoTextWidth+50, infoTextWidth-50, TextAlignment::Left);
+		spRam->setFont(fontText);
+		tabs[4]->AddField(spRam);
+
+		spInfoPanel = new ColorField(spInfoY, spInfoX, spInfoWidth, spInfoHeight);
+		spInfoPanel->SetColors(colours->mainFontColor, colours->mainPanelColor);
+		tabs[4]->AddField(spInfoPanel);
+
+
+		// General Panel
+		PixelNumber generalItemWidth = (spGeneralWidth - mainSectionMargin)/2;
+
+		spGeneralLabel = new StaticTextField(mainSectionMargin*2, spGeneralX+mainSectionMargin, spGeneralWidth-mainSectionMargin*2, TextAlignment::Centre, strings->general);
+		spGeneralLabel->setFont(fontLabel);
+		tabs[4]->AddField(spGeneralLabel);
+
+		spBaudLabel = new StaticTextField(spGeneralY+pRow1Label, spGeneralX+mainSectionMargin, generalItemWidth-mainSectionMargin, TextAlignment::Left, strings->baudRate);
+		spBaudLabel->setFont(fontText);
+		tabs[4]->AddField(spBaudLabel);
+
+		spVolumeLabel = new StaticTextField(spGeneralY+pRow1Label, spGeneralX+mainSectionMargin+generalItemWidth, generalItemWidth-mainSectionMargin, TextAlignment::Left, strings->volume);
+		spVolumeLabel->setFont(fontText);
+		tabs[4]->AddField(spVolumeLabel);
+
+		spBaud = new DropdownList(spGeneralY+pRow1Item, spGeneralX+mainSectionMargin, generalItemWidth-mainSectionMargin, 30, 5, baudText, evSetBaudRate);
+		spBaud->setColors(colours->mainFontColor, colours->mainPanelColor, colours->dropdownBackColor);
+		uint8_t i = 0;
+		while ( (i < 5) && (baudValues[i] != GetBaudRate()) ) { i++; }
+		spBaud->selectItem(i);
+		tabs[4]->AddField(spBaud);
+
+		spVolume = new DropdownList(spGeneralY+pRow1Item, spGeneralX+mainSectionMargin+generalItemWidth, generalItemWidth-mainSectionMargin, 30, 6, volumeText, evSetVolume);
+		spVolume->setColors(colours->mainFontColor, colours->mainPanelColor, colours->dropdownBackColor);
+		spVolume->selectItem(GetVolume());
+		tabs[4]->AddField(spVolume);
+
+		spTimeoutLabel = new StaticTextField(spGeneralY+pRow2Label, spGeneralX+mainSectionMargin, generalItemWidth-mainSectionMargin, TextAlignment::Left, strings->infoTimeout);
+		spTimeoutLabel->setFont(fontText);
+		tabs[4]->AddField(spTimeoutLabel);
+
+		spTimeout = new DropdownList(spGeneralY+pRow2Item, spGeneralX+mainSectionMargin, generalItemWidth-mainSectionMargin, 30, 4, timeoutText, evAdjustInfoTimeout);
+		spTimeout->setColors(colours->mainFontColor, colours->mainPanelColor, colours->dropdownBackColor);
+		i = 0;
+		while( (i < 4) && (timeoutValues[i] != infoTimeout) ) { i++; }
+		spTimeout->selectItem(i);
+		tabs[4]->AddField(spTimeout);
+
+
+		spCalTouch = new TextButton(spGeneralY+spGeneralHeight-pButtonHeight-mainSectionMargin, spGeneralX+mainSectionMargin, generalItemWidth-mainSectionMargin, pButtonHeight, strings->calibrateTouch, evCalTouch);
+		spCalTouch->SetColors(colours->mainFontColor, colours->mainDarkButtonColor);
+		tabs[4]->AddField(spCalTouch);
+
+		spFactoryReset = new TextButton(spGeneralY+spGeneralHeight-pButtonHeight-mainSectionMargin, spGeneralX+mainSectionMargin+generalItemWidth, generalItemWidth-mainSectionMargin, pButtonHeight, strings->clearSettings, evFactoryReset);
+		spFactoryReset->SetColors(colours->mainFontColor, colours->mainDarkButtonColor);
+		tabs[4]->AddField(spFactoryReset);
+
+		spGeneralPanel = new ColorField(spGeneralY, spGeneralX, spGeneralWidth, spGeneralHeight);
+		spGeneralPanel->SetColors(colours->mainFontColor, colours->mainPanelColor);
+		tabs[4]->AddField(spGeneralPanel);
+
+		// Appearance Panel
+		spAppearanceLabel = new StaticTextField(spAppearanceY+mainSectionMargin, spAppearanceX+mainSectionMargin, spAppearanceWidth-mainSectionMargin*2, TextAlignment::Centre, strings->appearance);
+		spAppearanceLabel->setFont(fontLabel);
+		tabs[4]->AddField(spAppearanceLabel);
+
+		spThemeLabel = new StaticTextField(spAppearanceY+pRow1Label, spAppearanceX+mainSectionMargin, spAppearanceWidth-mainSectionMargin*2, TextAlignment::Left, strings->theme);
+		spThemeLabel->setFont(fontText);
+		tabs[4]->AddField(spThemeLabel);
+		spTheme = new DropdownList(spAppearanceY+pRow1Item, spAppearanceX+mainSectionMargin, spAppearanceWidth-mainSectionMargin*2, 30, NumColorSchemes, themeText, evSetColors);
+		spTheme->setColors(colours->mainFontColor, colours->mainPanelColor, colours->dropdownBackColor);
+		spTheme->selectItem(GetColorScheme());
+		tabs[4]->AddField(spTheme);
+
+		spLanguageLabel = new StaticTextField(spAppearanceY+pRow2Label, spAppearanceX+mainSectionMargin, spAppearanceWidth-mainSectionMargin*2, TextAlignment::Left, strings->language);
+		spLanguageLabel->setFont(fontText);
+		tabs[4]->AddField(spLanguageLabel);
+		spLanguage = new DropdownList(spAppearanceY+pRow2Item, spAppearanceX+mainSectionMargin, spAppearanceWidth-mainSectionMargin*2, 30, NumLanguages, languageText, evSetLanguage);
+		spLanguage->setColors(colours->mainFontColor, colours->mainPanelColor, colours->dropdownBackColor);
+		spLanguage->selectItem(language);
+		tabs[4]->AddField(spLanguage);
+
+		spAppearancePanel = new ColorField(spAppearanceY, spAppearanceX, spAppearanceWidth, spAppearanceHeight);
+		spAppearancePanel->SetColors(colours->mainFontColor, colours->mainPanelColor);
+		tabs[4]->AddField(spAppearancePanel);
+
+
+		// Display Panel
+		PixelNumber displayItemWidth = (spDisplayWidth - mainSectionMargin)/2;
+		uint8_t curBrightness = GetBrightness();
+		uint8_t curDimType = (uint8_t)GetDisplayDimmerType();
+
+		spDisplayLabel = new StaticTextField(spDisplayY+mainSectionMargin, spDisplayX+mainSectionMargin, spDisplayWidth-mainSectionMargin*2, TextAlignment::Centre, strings->display);
+		spDisplayLabel->setFont(fontLabel);
+		tabs[4]->AddField(spDisplayLabel);
+
+		spBrightnessLabel = new StaticTextField(spDisplayY+pRow1Label, spDisplayX+mainSectionMargin, displayItemWidth-mainSectionMargin, TextAlignment::Left, strings->brightness);
+		spBrightnessLabel->setFont(fontText);
+		tabs[4]->AddField(spBrightnessLabel);
+		spBrightness = new DropdownList(spDisplayY+pRow1Item, spDisplayX+mainSectionMargin, displayItemWidth-mainSectionMargin, 30, 6, brightnessText, evSetBrightness);
+		spBrightness->setColors(colours->mainFontColor, colours->mainPanelColor, colours->dropdownBackColor);
+		i = 0;
+		while( (i < 6) && (brightnessValues[i] != curBrightness) ) { i++; }
+		spBrightness->selectItem(i);
+		tabs[4]->AddField(spBrightness);
+
+		spDimLabel = new StaticTextField(spDisplayY+pRow1Label, spDisplayX+mainSectionMargin+displayItemWidth, displayItemWidth-mainSectionMargin, TextAlignment::Left, strings->dimming);
+		spDimLabel->setFont(fontText);
+		tabs[4]->AddField(spDimLabel);
+		spDim = new DropdownList(spDisplayY+pRow1Item, spDisplayX+mainSectionMargin+displayItemWidth, displayItemWidth-mainSectionMargin, 30, 3, dimText, evSetDimmingType);
+		spDim->setColors(colours->mainFontColor, colours->mainPanelColor, colours->dropdownBackColor);
+		spDim->selectItem(curDimType);
+		tabs[4]->AddField(spDim);
+
+		spMirror = new TextButton(spDisplayY+spDisplayHeight-pButtonHeight-mainSectionMargin, spDisplayX+mainSectionMargin, displayItemWidth-mainSectionMargin, pButtonHeight, strings->mirrorDisplay, evInvertX, 1);
+		spMirror->SetColors(colours->mainFontColor, colours->mainDarkButtonColor);
+		spMirror->SetFont(fontText);
+		tabs[4]->AddField(spMirror);
+
+		spInvert = new TextButton(spDisplayY+spDisplayHeight-pButtonHeight-mainSectionMargin, spDisplayX+mainSectionMargin+displayItemWidth, displayItemWidth-mainSectionMargin, pButtonHeight, strings->invertDisplay, evInvertY, 0);
+		spInvert->SetColors(colours->mainFontColor, colours->mainDarkButtonColor);
+		spInvert->SetFont(fontText);
+		tabs[4]->AddField(spInvert);
+
+		spDisplayPanel = new ColorField(spDisplayY, spDisplayX, spDisplayWidth, spDisplayHeight);
+		spDisplayPanel->SetColors(colours->mainFontColor, colours->mainPanelColor);
+		tabs[4]->AddField(spDisplayPanel);
+	}
+
+
 	// Create Machine Control Display Group
-	void CreateMachineControlPanel()
+ 	void CreateMachineControlPanel()
 	{
 		const LcdFont fontLabel = glcd20x30;
 		const LcdFont fontText = glcd19x21;
@@ -774,6 +1165,8 @@ namespace UI
 	// Create Main
 	void CreateMainWindow(uint32_t language, const ColourScheme& colours, uint32_t p_infoTimeout)
 	{
+		infoTimeout = p_infoTimeout;
+
 		// Set up default colours and margins
 		DisplayField::SetDefaultFont(DEFAULT_FONT);
 		TextButton::SetFont(DEFAULT_FONT);
@@ -783,10 +1176,17 @@ namespace UI
 		SingleButton::SetTextMargin(textButtonMargin);
 		SingleButton::SetIconMargin(iconButtonMargin);
 
+
+		CreateAreYouSurePopup();
+
 		CreateToolBar(colours);
 		CreateMenuBar(colours);
 
 		CreateMachineControlPanel();
+		CreateSetupPanel(language);
+
+		touchCalibInstruction = new StaticTextField(DISPLAY_Y/2 - 10, 0, DISPLAY_X, TextAlignment::Centre, strings->touchTheSpot);
+		touchCalibInstruction->SetColors(colours.mainFontColor, colours.mainBackColor);
 	}
 }
 

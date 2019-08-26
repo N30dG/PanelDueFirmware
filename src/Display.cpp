@@ -31,6 +31,7 @@ Colour DisplayField::defaultBorderColor = black;
 Palette DisplayField::defaultIconPalette = IconPaletteLight;
 
 
+/**** Display Field ****/
 DisplayField::DisplayField(PixelNumber py, PixelNumber px, PixelNumber pw)
 	: y(py), x(px), width(pw), fcolor(defaultFcolor), bcolor(defaultBcolor),
 		changed(true), visible(true), underlined(false), textRows(1), next(nullptr)
@@ -112,6 +113,7 @@ void DisplayField::SetColors(Colour fc, Colour bc)
 	}
 }
 
+
 /**** Button Press ****/
 ButtonPress::ButtonPress() : button(nullptr), index(0) { }
 ButtonPress::ButtonPress(ButtonBase *b, unsigned int pi) : button(b), index(pi) { }
@@ -186,7 +188,10 @@ void Window::SetPopup(PopupWindow * p, PixelNumber px, PixelNumber py, bool redr
 	{
 		py = (DisplayY - p->GetHeight())/2;
 	}
-	p->SetPos(px, py);
+
+	if (px != 0 || py != 0)
+		p->SetPos(px, py);
+
 	Window *pw = this;
 	while (pw->next != nullptr)
 	{
@@ -328,6 +333,11 @@ void Window::Press(ButtonPress bp, bool v)
 		}
 	}
 }
+void Window::SetColor(Colour bcolor)
+{
+	backgroundColour = bcolor;
+	Refresh(true);
+}
 
 
 /**** Main Window ****/
@@ -452,7 +462,7 @@ void PopupWindow::Refresh(bool full)
 		// Draw a double border
 		lcd.setColor(borderColor);
 		lcd.drawRect(xPos, yPos, xPos + width - 1, yPos + height - 1);
-		lcd.drawRect(xPos + 1, yPos + 1, xPos + width - 2, yPos + height - 2);
+		//lcd.drawRect(xPos + 1, yPos + 1, xPos + width - 2, yPos + height - 2);
 	}
 	
 	for (DisplayField * null p = root; p != nullptr; p = p->next)
@@ -708,7 +718,7 @@ void ButtonBase::CheckEvent(PixelNumber x, PixelNumber y, int& bestError, Button
 }
 
 
-/**** Singe Button ****/
+/**** Single Button ****/
 SingleButton::SingleButton(PixelNumber py, PixelNumber px, PixelNumber pw)
 	: ButtonBase(py, px, pw)
 {
@@ -965,6 +975,95 @@ size_t FloatButton::PrintText(size_t offset) const
 		ret += lcd.print(units);
 	}
 	return ret;
+}
+
+
+/**** Dropdown List ****/
+PopupWindow* DropdownList::dropdown;
+TextButton* DropdownList::items[maxItems];
+DropdownList::DropdownList(PixelNumber py, PixelNumber px, PixelNumber pw, PixelNumber ph, uint8_t num, const char* items, event_t evt)
+	: TextButton(py, px, pw, ph, "", evDropDown), numItems(num), itemText(items), event(evt)
+{
+	if (dropdown == nullptr)
+	{
+		dropdown = new PopupWindow(itemHeight*maxItems, width, black, black);
+
+		PixelNumber buttonY = 0;
+		for (uint8_t i=0; i<maxItems; i++)
+		{
+			this->items[i] = new TextButton(buttonY, 0, width, itemHeight, "", evt, i);
+			dropdown->AddField(this->items[i]);
+			buttonY = buttonY + itemHeight;
+		}
+	}
+}
+void DropdownList::SetDropdown()
+{
+	char* curItemText = (char*)itemText;
+	for (uint8_t i=0; i<maxItems; i++)
+	{
+		if (i<numItems)
+		{
+			items[i]->SetText(curItemText);
+			items[i]->width = width;
+			curItemText = strchr(curItemText, '\n') + 1;
+			items[i]->visible = true;
+			items[i]->SetEvent(event, i);
+		}
+		else
+		{
+			items[i]->visible = false;
+		}
+	}
+
+	PixelNumber popupHeight = itemHeight*numItems;
+
+	if ((y+toolBarHeight+popupHeight) < DISPLAY_Y)
+	{
+		dropdown->SetPos(x+menuBarWidth, y+toolBarHeight); //FIXME: this only work's when the dropdown is inside the main-displayGroup;
+	}
+	else {
+		dropdown->SetPos(x+menuBarWidth, (y+toolBarHeight+height)-popupHeight );
+	}
+
+
+	dropdown->SetSize(width, popupHeight);
+	dropdown->Refresh(true);
+}
+void DropdownList::setColors(Colour fontColor, Colour buttonBackColor, Colour dropdownBackColor)
+{
+	fcolor = fontColor;
+	bcolor = buttonBackColor;
+	dropdown->SetColor(dropdownBackColor);
+	for (uint8_t i=0; i<maxItems; i++)
+	{
+		items[i]->SetColors(fontColor, dropdownBackColor);
+	}
+}
+void DropdownList::selectItem(uint8_t idx)
+{
+	char* curItemText = (char*)itemText;
+	for (uint8_t i=0; i<idx; i++)
+	{
+		curItemText = strchr(curItemText, '\n') + 1;
+	}
+	this->SetText((const char*)curItemText);
+}
+void DropdownList::Refresh(bool full, PixelNumber xOffset, PixelNumber yOffset)
+{
+	ButtonWithText::Refresh(full, xOffset, yOffset);
+
+	lcd.setBackColor(bcolor);
+	lcd.setColor(fcolor);
+
+	//draw icon
+	PixelNumber iconX = (x + xOffset + width) - (GetIconWidth(IconDropdownArrow) + iconMargin*2);
+	PixelNumber iconY = (y+yOffset) + (itemHeight - GetIconHeight(IconDropdownArrow))/2;
+
+	lcd.drawBitmap2Colorized(iconX, iconY, GetIconWidth(IconDropdownArrow), GetIconHeight(IconDropdownArrow), GetIconData(IconDropdownArrow) );
+
+	// draw bottom-line
+	lcd.drawLine(x+xOffset, y+yOffset+height-1, x+xOffset+width-1, y+yOffset+height-1);
 }
 
 
